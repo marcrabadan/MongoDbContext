@@ -66,12 +66,20 @@ SocialContext has a TRANSIENT lifestyle and your configuration has a SINGLETON l
 
 You can choose by connection string or a custom configuration from MongoClientSettings.
 
+Azure Cosmos Db configuration is enabled in 1.0.1.
+
 ```csharp
 
   var services = new ServiceCollection();
-  services.AddMongoDbContext<SocialContext>(options =>
-  {
-      options.ConectionString("mongodb://localhost:27017");
-  }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
+services.AddMongoDbContext<TContext>(options =>
+{
+    //options.ConnectionString("mongodb://localhost:27017");
+    options.ConnectionString("mongodb://<serviceName>:<PRIMARYPASSWORD>@<serviceName>.documents.azure.com:10255/?ssl=true&replicaSet=globaldb");
+}, ServiceLifetime.Transient, ServiceLifetime.Singleton);
     
 ```
+
+# NOTE:
+
+- Azure Cosmos Db only for CRUD Operations.
+- Map/Reduce is not supported in Azure Cosmos Db.
