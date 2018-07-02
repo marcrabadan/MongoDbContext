@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Copyright>Marc Rabadan Fuertes 2018</Copyright>
+    <Authors>Marc Rabadan Fuertes</Authors>
+    <Description>MongoDbContext enables .NET developers to work with a MongoDb database using .NET objects.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/marcrabadan/MongoDbContext</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/marcrabadan/MongoDbContext/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/marcrabadan/MongoDbContext</RepositoryUrl>
+    <Version>1.0.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Inflector.NetStandard" Version="1.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
+    <PackageReference Include="MongoDB.Bson" Version="2.6.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.6.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+</Project>
