@@ -71,7 +71,7 @@ Azure Cosmos Db configuration is enabled in 1.0.1.
 ```csharp
 
   var services = new ServiceCollection();
-services.AddMongoDbContext<TContext>(options =>
+services.AddMongoDbContext<SocialContext>(options =>
 {
     //options.ConnectionString("mongodb://localhost:27017");
     options.ConnectionString("mongodb://<serviceName>:<PRIMARYPASSWORD>@<serviceName>.documents.azure.com:10255/?ssl=true&replicaSet=globaldb");
