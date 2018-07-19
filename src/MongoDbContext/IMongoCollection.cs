@@ -1,14 +1,12 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDbContext.Documents;
-using MongoDbContext.Enums;
-using MongoDB.Bson;
-using MongoDB.Driver;
 
-namespace MongoDbContext
+namespace MongoDbFramework
 {
     public interface IMongoCollection<TDocument> where TDocument : Document
     {

@@ -1,9 +1,8 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Security.Authentication;
-using MongoDbContext.Internal.Constants;
-using MongoDB.Driver;
 
-namespace MongoDbContext.Options.Builders
+namespace MongoDbFramework
 {
     public class MongoDbOptionBuilder
     {

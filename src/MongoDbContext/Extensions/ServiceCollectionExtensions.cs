@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using MongoDbContext.Options;
-using MongoDbContext.Options.Builders;
 using System;
 
-namespace MongoDbContext
+namespace MongoDbFramework
 {
     public static class ServiceCollectionExtensions
     {
@@ -32,9 +30,7 @@ namespace MongoDbContext
             {
                 optionsLifetime = ServiceLifetime.Singleton;
             }
-
-            serviceCollection.AddInfrastructure();
-
+            
             serviceCollection.TryAdd(
                 new ServiceDescriptor(
                     typeof(MongoDbOptions<TContext>),
@@ -56,10 +52,6 @@ namespace MongoDbContext
             optionsAction.Invoke(applicationServiceProvider, builder);
 
             return (MongoDbOptions<TContext>)builder.Options;
-        }
-
-        private static void AddInfrastructure(this IServiceCollection services)
-        {
         }
     }
 }

@@ -1,14 +1,12 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using MongoDbContext.Documents;
-using MongoDbContext.Internal;
-using MongoDbContext.Internal.Builders;
-using MongoDB.Driver;
 
-[assembly: InternalsVisibleTo("MongoDbContext.UnitTests")]
+[assembly: InternalsVisibleTo("MongoDbFramework.UnitTests")]
+[assembly: InternalsVisibleTo("MongoDbFramework.IntegrationTests")]
 
-namespace MongoDbContext
+namespace MongoDbFramework
 {
     public class ModelBuilder
     {
@@ -32,7 +30,8 @@ namespace MongoDbContext
             var model = new Model<TDocument>
             {
                 DatabaseName = modelBuilder.DatabaseName,
-                CollectionName = modelBuilder.CollectionName
+                CollectionName = modelBuilder.CollectionName,
+                Indices = modelBuilder.Indexes
             };
             config.Model = model;
             if (!_modelConfig.ContainsKey(typeof(TDocument)))

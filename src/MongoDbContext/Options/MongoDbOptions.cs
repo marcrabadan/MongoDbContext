@@ -1,7 +1,7 @@
-﻿using MongoDB.Driver;
-using System;
+﻿using System;
+using MongoDB.Driver;
 
-namespace MongoDbContext.Options
+namespace MongoDbFramework
 {
     public class MongoDbOptions<TContext> : MongoDbOptions where TContext : MongoDbContext
     {

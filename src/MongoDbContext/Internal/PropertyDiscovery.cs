@@ -1,14 +1,13 @@
-﻿using MongoDbContext.Attributes;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace MongoDbContext.Internal
+namespace MongoDbFramework
 {
-    public class PropertyDiscovery<TFrom> where TFrom : class
+    internal class PropertyDiscovery<TFrom> where TFrom : class
     {
         private static readonly ConcurrentDictionary<Type, Action<TFrom>> _objectInitializers = new ConcurrentDictionary<Type, Action<TFrom>>();
 

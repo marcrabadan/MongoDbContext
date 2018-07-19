@@ -1,6 +1,4 @@
-﻿using MongoDbContext.Documents;
-
-namespace MongoDbContext.IntegrationTests.Documents
+﻿namespace MongoDbFramework.IntegrationTests.Documents
 {
     public class Movie : Document
     { 

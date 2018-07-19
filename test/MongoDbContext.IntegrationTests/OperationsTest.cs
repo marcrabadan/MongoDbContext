@@ -1,17 +1,16 @@
+using MongoDB.Bson;
+using MongoDB.Driver;
+using MongoDbFramework.IntegrationTests.Contexts;
+using MongoDbFramework.IntegrationTests.Documents;
+using MongoDbFramework.IntegrationTests.Fixtures;
+using MongoDbFramework.IntegrationTests.Projections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using MongoDB.Bson;
-using MongoDbContext.IntegrationTests.Contexts;
-using MongoDbContext.IntegrationTests.Documents;
-using MongoDbContext.IntegrationTests.Fixtures;
 using System.Threading.Tasks;
-using MongoDbContext.IntegrationTests.Projections;
-using MongoDbContext.ResultModels;
-using MongoDB.Driver;
+using MongoDbFramework.IntegrationTests.Mocks;
 using Xunit;
 
-namespace MongoDbContext.IntegrationTests
+namespace MongoDbFramework.IntegrationTests
 {
     public class OperationsTest : IClassFixture<SocialContextFixture<SocialContext>>
     {
@@ -244,17 +243,51 @@ namespace MongoDbContext.IntegrationTests
         }
 
         [Fact]
+        public async Task IndexTest()
+        {
+            var movies = MovieMock.GetMovieMocks();
+            var expectedIndices = new List<string>
+            {
+                "_id",
+                "CategoryIndex"
+            };
+
+            await _context.Movies.AddRangeAsync(movies);
+
+            var data = await _context.Movies.GetAllAsync(1);
+
+            var collection = _context.Movies as MongoCollection<Movie>;
+
+            var indexManager = collection.Collection.Indexes;
+
+            var indices = indexManager.List();
+            while (indices.MoveNext())
+            {
+                var currentIndex = indices.Current;
+                foreach (var index in currentIndex)
+                {
+                    Assert.Contains(index.Elements, c =>
+                    {
+                        if(index.TryGetValue("name", out var name))
+                        {
+                            return expectedIndices.Any(x => name.ToString().Contains(x));
+                        }
+
+                        return false;
+                    });
+                }
+            }
+
+            foreach (var item in data)
+            {
+                await _context.Movies.DeleteAsync(item);
+            }
+        }
+
+        [Fact]
         public async Task MapReduceTests()
         {
-            var movies = new List<Movie>
-            {
-                new Movie { Title="The Perfect Developer",
-                    Category="SciFi", Minutes=118 },
-                new Movie { Title="Lost In Frankfurt am Main",
-                    Category="Horror", Minutes=122 },
-                new Movie { Title="The Infinite Standup",
-                    Category="Horror", Minutes=341 }
-            };
+            var movies = MovieMock.GetMovieMocks();
 
             var expected = new List<ReduceResult<MovieProjection>>
             {

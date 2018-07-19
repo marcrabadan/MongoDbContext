@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MongoDbContext.Attributes
+namespace MongoDbFramework
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = false)]
     public sealed class SuppressCollectionInitializationAttribute : Attribute

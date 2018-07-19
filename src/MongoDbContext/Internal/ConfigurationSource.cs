@@ -1,7 +1,6 @@
 ﻿using MongoDB.Driver;
-using MongoDbContext.Documents;
 
-namespace MongoDbContext.Internal
+namespace MongoDbFramework
 {
     public class ConfigurationSource<TDocument> : ConfigurationSource where TDocument : Document
     {

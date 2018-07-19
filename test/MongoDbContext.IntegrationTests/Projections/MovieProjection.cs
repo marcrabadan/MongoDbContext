@@ -1,6 +1,4 @@
-﻿using MongoDbContext.Documents;
-
-namespace MongoDbContext.IntegrationTests.Projections
+﻿namespace MongoDbFramework.IntegrationTests.Projections
 {
     public class MovieProjection
     {

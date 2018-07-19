@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection;
-using MongoDbContext.Documents;
-using MongoDbContext.IntegrationTests.Contexts;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 
-namespace MongoDbContext.IntegrationTests.Fixtures
+namespace MongoDbFramework.IntegrationTests.Fixtures
 {
     public class SocialContextFixture<TContext> : IDisposable where TContext : MongoDbContext
     {

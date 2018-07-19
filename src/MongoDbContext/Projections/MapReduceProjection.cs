@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace MongoDbContext.Projections
+namespace MongoDbFramework
 {
     public class MapReduceProjection<T> where T : class
     {

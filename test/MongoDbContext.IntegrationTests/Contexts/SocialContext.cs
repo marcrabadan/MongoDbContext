@@ -1,7 +1,6 @@
-﻿using MongoDbContext.IntegrationTests.Documents;
-using MongoDbContext.Options;
+﻿using MongoDbFramework.IntegrationTests.Documents;
 
-namespace MongoDbContext.IntegrationTests.Contexts
+namespace MongoDbFramework.IntegrationTests.Contexts
 {
     public class SocialContext : MongoDbContext
     {
@@ -17,7 +16,12 @@ namespace MongoDbContext.IntegrationTests.Contexts
 
             modelBuilder.Document<Movie>()
                 .WithDatabase("socialDb")
-                .WithCollection("movies");
+                .WithCollection("movies")
+                .DefineIndex(c => c.Ascending(x => x.Category), c =>
+                {
+                    c.Name = "CategoryIndex";
+                    c.Unique = false;
+                });
         }
 
         public MongoCollection<Tweet> Tweets { get; set; }

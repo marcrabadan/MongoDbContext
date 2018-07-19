@@ -1,7 +1,7 @@
 ﻿using System;
 using MongoDB.Driver;
 
-namespace MongoDbContext.Options
+namespace MongoDbFramework
 {
     public class MongoDbOption
     {

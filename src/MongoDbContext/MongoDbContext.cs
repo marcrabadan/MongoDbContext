@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MongoDB.Driver;
+using System;
 using System.Linq;
-using System.Text;
-using MongoDbContext.Documents;
-using MongoDbContext.Internal;
-using MongoDbContext.Options;
-using MongoDB.Driver;
-using System.Runtime.CompilerServices;
 
-namespace MongoDbContext
+namespace MongoDbFramework
 {
     public class MongoDbContext 
     {        
@@ -32,7 +26,7 @@ namespace MongoDbContext
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
         }
-        
+           
         public MongoCollection<TDocument> Collection<TDocument>() where TDocument : Document
         {
             var modelBuilder = new ModelBuilder(_mongoClient);

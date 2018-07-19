@@ -1,11 +1,13 @@
 ﻿using System;
-using MongoDbContext.Documents;
+using System.Collections.Generic;
+using MongoDB.Driver;
 
-namespace MongoDbContext.Internal
+namespace MongoDbFramework
 {
     public class Model<T> : Model where T : Document
     {
         public Type DocumentType => typeof(T);
+        public List<Tuple<IndexKeysDefinition<T>, CreateIndexOptions<T>>> Indices { get; set; }
     }
 
     public class Model

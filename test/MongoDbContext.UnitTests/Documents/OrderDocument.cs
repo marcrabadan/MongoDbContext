@@ -1,6 +1,4 @@
-﻿using MongoDbContext.Documents;
-
-namespace MongoDbContext.UnitTests.Documents
+﻿namespace MongoDbFramework.UnitTests.Documents
 {
     public class OrderDocument : Document
     {

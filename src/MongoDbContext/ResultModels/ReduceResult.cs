@@ -1,4 +1,4 @@
-﻿namespace MongoDbContext.ResultModels
+﻿namespace MongoDbFramework
 {
     public class ReduceResult<T>
     {

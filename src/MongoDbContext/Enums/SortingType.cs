@@ -1,4 +1,4 @@
-﻿namespace MongoDbContext.Enums
+﻿namespace MongoDbFramework
 {
     public enum SortingType
     {

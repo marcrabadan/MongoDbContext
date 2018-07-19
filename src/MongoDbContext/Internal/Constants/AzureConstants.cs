@@ -1,4 +1,4 @@
-﻿namespace MongoDbContext.Internal.Constants
+﻿namespace MongoDbFramework
 {
     internal static class AzureConstants
     {
