@@ -23,7 +23,7 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
     
 ```
 
-# 1 - Inherits from the ElasticSearchContext class.
+# 1 - Inherits from the MongoDbContext class.
 
 ```csharp
 
