@@ -22,10 +22,18 @@ namespace MongoDbFramework.IntegrationTests.Contexts
                     c.Name = "CategoryIndex";
                     c.Unique = false;
                 });
+
+            modelBuilder.Document<ImageBlob>()
+                .WithDatabase("fileStorage")
+                .AsFileStorage<ImageBlob>()
+                .WithBucketName("ImageBlobBucket")
+                .WithChunkSize(64512);
         }
 
         public MongoCollection<Tweet> Tweets { get; set; }
 
         public MongoCollection<Movie> Movies { get; set; }
+
+        public MongoFileCollection<ImageBlob> Images { get; set; }
     }
 }

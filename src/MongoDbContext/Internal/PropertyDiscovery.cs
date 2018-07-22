@@ -9,7 +9,8 @@ namespace MongoDbFramework
 {
     internal class PropertyDiscovery<TFrom> where TFrom : class
     {
-        private static readonly ConcurrentDictionary<Type, Action<TFrom>> _objectInitializers = new ConcurrentDictionary<Type, Action<TFrom>>();
+        private static readonly ConcurrentDictionary<Type, Dictionary<Type, Action<TFrom>>> _objectInitializers = new ConcurrentDictionary<Type, Dictionary<Type, Action<TFrom>>>();
+        private static readonly List<string> _propertyProcessed = new List<string>();
 
         private readonly TFrom _from;
 
@@ -22,7 +23,8 @@ namespace MongoDbFramework
         {
             var setterMethod = typeof(MongoDbContext).GetMethods().Single(m => m.Name == implementedMethodName && m.IsGenericMethodDefinition);
             InitializeProperty(_from, componentType, serviceType, setterMethod);
-            var action = _objectInitializers[_from.GetType()];
+            var actions = _objectInitializers[_from.GetType()];
+            var action = actions[componentType];
             action(_from);
         }
 
@@ -33,13 +35,15 @@ namespace MongoDbFramework
             var documentTypes = new Dictionary<Type, List<string>>();
             var initDelegates = new List<Action<TFrom>>();
             var parameter = Expression.Parameter(typeof(TFrom), "objFrom");
-
-            Action<TFrom> setAction;
-            if (!_objectInitializers.TryGetValue(obj.GetType(), out setAction))
+            
+            if (!_objectInitializers.ContainsKey(obj.GetType()) || !_objectInitializers[obj.GetType()].ContainsKey(componentType))
             {
                 var propertyInfoList = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(c => c.DeclaringType != typeof(TFrom)).ToList();
                 foreach (var propertyInfo in propertyInfoList)
                 {
+                    if(_propertyProcessed.Contains(propertyInfo.Name))
+                        continue;
+                    
                     var documentType = GetElementType(propertyInfo.PropertyType, componentType, serviceType);
                     if (documentType != null)
                     {
@@ -60,6 +64,7 @@ namespace MongoDbFramework
 
                                 var newExpression = Expression.Call(parameter, setMethod);
                                 var setExpression = Expression.Call(Expression.Convert(parameter, obj.GetType()), setter, newExpression);
+                                _propertyProcessed.Add(propertyInfo.Name);
                                 initDelegates.Add(Expression.Lambda<Action<TFrom>>(setExpression, parameter).Compile());
                             }
                         }
@@ -73,10 +78,22 @@ namespace MongoDbFramework
                         initer(dbContext);
                     }
                 };
-
-                setAction = initializer;
-
-                _objectInitializers.TryAdd(obj.GetType(), initializer);
+                
+                if (!_objectInitializers.ContainsKey(obj.GetType()))
+                {
+                    var dict = new Dictionary<Type, Action<TFrom>>
+                    {
+                        { componentType, initializer }
+                    };
+                    _objectInitializers.TryAdd(obj.GetType(), dict);
+                }
+                else
+                {
+                    var actions = _objectInitializers[obj.GetType()];
+                    if(!actions.ContainsKey(componentType))
+                        actions.Add(componentType, initializer);
+                    _objectInitializers[obj.GetType()] = actions;
+                }
             }
         }
 

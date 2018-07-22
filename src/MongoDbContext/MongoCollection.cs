@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.GridFS;
 
 namespace MongoDbFramework
 {
@@ -14,12 +15,15 @@ namespace MongoDbFramework
     {
         public MongoCollection(ConfigurationSource<TDocument> configurationSource)
         {
-            Client = configurationSource.Source;
-            Collection = InitializeCollection(configurationSource);
+            Client = configurationSource.ToMongoClient();
+            Database = configurationSource.ToMongoDatabase(Client);
+            Collection = configurationSource.ToMongoCollection(Client);
         }
         
         internal MongoClient Client { get; }
+        internal IMongoDatabase Database { get; }
         internal MongoDB.Driver.IMongoCollection<TDocument> Collection { get; }
+        internal GridFSBucket Bucket { get; }
 
         public async Task<TDocument> FirstOrDefaultAsync(Expression<Func<TDocument, bool>> expression, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -87,26 +91,6 @@ namespace MongoDbFramework
         {
             var mapReduce = await Collection.MapReduceAsync(map, reduce, options, cancellationToken);
             return await mapReduce.ToListAsync(cancellationToken);
-        }
-
-        protected MongoDB.Driver.IMongoCollection<TDocument> InitializeCollection(ConfigurationSource<TDocument> configurationSource)
-        {
-            var collection = default(MongoDB.Driver.IMongoCollection<TDocument>);
-            if (configurationSource.Model != default(Model<TDocument>))
-            {
-                collection = Client.GetDatabase(configurationSource.Model.DatabaseName)
-                    .GetCollection<TDocument>(configurationSource.Model.CollectionName);
-
-                collection.Indexes.SetIndices(configurationSource.Model?.Indices);
-            }
-            else
-            {
-                var dbName = string.Format("{0}db", typeof(TDocument).Name.ToLower());
-                collection = Client.GetDatabase(dbName)
-                    .GetCollection<TDocument>(typeof(TDocument).Name.ToLower().Pluralize());
-            }
-
-            return collection;
         }
     }
 }

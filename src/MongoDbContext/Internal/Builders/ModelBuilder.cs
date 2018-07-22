@@ -20,8 +20,7 @@ namespace MongoDbFramework
 
         public DocumentTypeBuilder<TDocument> Document<TDocument>() where TDocument : Document
         {
-            var documentTypeBuilder = new DocumentTypeBuilder<TDocument>(c => Apply(c));
-            return documentTypeBuilder;
+            return new DocumentTypeBuilder<TDocument>(c => Apply(c));
         }
 
         internal void Apply<TDocument>(DocumentTypeBuilder<TDocument> modelBuilder) where TDocument : Document
@@ -31,7 +30,8 @@ namespace MongoDbFramework
             {
                 DatabaseName = modelBuilder.DatabaseName,
                 CollectionName = modelBuilder.CollectionName,
-                Indices = modelBuilder.Indexes
+                Indices = modelBuilder.Indexes,
+                FileStorageOptions = modelBuilder.FileStorageOptions
             };
             config.Model = model;
             if (!_modelConfig.ContainsKey(typeof(TDocument)))

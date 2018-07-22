@@ -10,15 +10,13 @@
     <PackageProjectUrl>https://github.com/marcrabadan/MongoDbContext</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/marcrabadan/MongoDbContext/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/marcrabadan/MongoDbContext</RepositoryUrl>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <AssemblyName>MongoDbFramework</AssemblyName>
     <RootNamespace>MongoDbFramework</RootNamespace>
-    <FileVersion>2.0.0.0</FileVersion>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <PackageReleaseNotes>Refactor namespaces
-Added Index Model Definition at ModelBuilder
-Fixed CreatedAt and ModifiedAt in Document</PackageReleaseNotes>
-    <PackageTags>dbContext, mongodb, framework, persistence, infrastructure, azure cosmos, cosmos</PackageTags>
+    <FileVersion>2.1.0.0</FileVersion>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <PackageReleaseNotes>Enabled MongoDb File Storage</PackageReleaseNotes>
+    <PackageTags>MongoDbFramework, DbContext, mongodb, framework, persistence, infrastructure, azure cosmos, cosmos, file storage, storage, files, entity, documents</PackageTags>
     <PackageId>MongoDbContext</PackageId>
     <Product>MongoDbContext</Product>
   </PropertyGroup>
@@ -26,8 +24,9 @@ Fixed CreatedAt and ModifiedAt in Document</PackageReleaseNotes>
   <ItemGroup>
     <PackageReference Include="Inflector.NetStandard" Version="1.2.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
-    <PackageReference Include="MongoDB.Bson" Version="2.6.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.6.0" />
+    <PackageReference Include="MongoDB.Bson" Version="2.7.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.7.0" />
+    <PackageReference Include="MongoDB.Driver.GridFS" Version="2.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 

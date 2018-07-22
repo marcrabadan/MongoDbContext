@@ -14,5 +14,6 @@ namespace MongoDbFramework
     {
         public string DatabaseName { get; set; }
         public string CollectionName { get; set; }
+        public FileStorageOptions FileStorageOptions { get; set; }
     }
 }

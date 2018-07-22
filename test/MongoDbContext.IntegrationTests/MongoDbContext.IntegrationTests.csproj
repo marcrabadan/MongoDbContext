@@ -22,4 +22,10 @@
     <ProjectReference Include="..\..\src\MongoDbContext\MongoDbContext.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Images\image.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

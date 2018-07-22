@@ -1,6 +1,7 @@
 ﻿using MongoDB.Driver;
 using System;
 using System.Linq;
+using MongoDbFramework.Documents;
 
 namespace MongoDbFramework
 {
@@ -19,8 +20,9 @@ namespace MongoDbFramework
 
         internal void DiscoverAndInitializeCollections()
         {
-            var discoveryService = new PropertyDiscovery<MongoDbContext>(this);
-            discoveryService.Initialize(typeof(MongoCollection<>), typeof(IMongoCollection<>), "Collection");
+            var discoveryProperties = new PropertyDiscovery<MongoDbContext>(this);
+            discoveryProperties.Initialize(typeof(MongoCollection<>), typeof(IMongoCollection<>), "Collection");
+            discoveryProperties.Initialize(typeof(MongoFileCollection<>), typeof(IMongoFileCollection<>), "FileCollection");
         }
 
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,6 +37,16 @@ namespace MongoDbFramework
                 ? (ConfigurationSource<TDocument>) modelBuilder.Models[typeof(TDocument)]
                 : new ConfigurationSource<TDocument>(_mongoClient);
             return new MongoCollection<TDocument>(configurationSource);
+        }
+
+        public MongoFileCollection<TDocument> FileCollection<TDocument>() where TDocument : FileDocument, new()
+        {
+            var modelBuilder = new ModelBuilder(_mongoClient);
+            OnModelCreating(modelBuilder);
+            var configurationSource = modelBuilder.Models.Any()
+                ? (ConfigurationSource<TDocument>)modelBuilder.Models[typeof(TDocument)]
+                : new ConfigurationSource<TDocument>(_mongoClient);
+            return new MongoFileCollection<TDocument>(configurationSource);
         }
     }
 }
