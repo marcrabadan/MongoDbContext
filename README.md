@@ -42,11 +42,19 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
             modelBuilder.Document<Movie>()
                 .WithDatabase("socialDb")
                 .WithCollection("movies");
+                            
+            modelBuilder.Document<ImageBlob>()
+                .WithDatabase("fileStorage")
+                .AsFileStorage<ImageBlob>()
+                .WithBucketName("ImageBlobBucket")
+                .WithChunkSize(64512);
         }
 
         public MongoCollection<Tweet> Tweets { get; set; }
 
         public MongoCollection<Movie> Movies { get; set; }
+        
+        public MongoFileCollection<ImageBlob> Images { get; set; }
     }
     
 ```
