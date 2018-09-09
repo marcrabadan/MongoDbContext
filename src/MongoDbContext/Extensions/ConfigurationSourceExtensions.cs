@@ -2,18 +2,18 @@
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 
-namespace MongoDbFramework.Extensions
+namespace MongoDbFramework
 {
     public static class ConfigurationSourceExtensions
     {
-        public static MongoClient ToMongoClient<TDocument>(this ConfigurationSource<TDocument> configurationSource) where TDocument : Document
+        public static MongoClient ToMongoClient<TDocument>(this ConfigurationSource<TDocument> configurationSource) where TDocument : IDocument
         {
             return configurationSource.Source;
         }
 
-        public static IMongoDatabase ToMongoDatabase<TDocument>(this ConfigurationSource<TDocument> configurationSource, MongoClient client) where TDocument : Document
+        public static IMongoDatabase ToMongoDatabase<TDocument>(this ConfigurationSource<TDocument> configurationSource, MongoClient client) where TDocument : IDocument
         {
-            var database = default(IMongoDatabase);
+            IMongoDatabase database;
             if (configurationSource.Model != default(Model<TDocument>))
                 database = client.GetDatabase(configurationSource.Model.DatabaseName);
             else
@@ -25,9 +25,9 @@ namespace MongoDbFramework.Extensions
             return database;
         }
 
-        public static MongoDB.Driver.IMongoCollection<TDocument> ToMongoCollection<TDocument>(this ConfigurationSource<TDocument> configurationSource, MongoClient client) where TDocument : Document
+        public static MongoDB.Driver.IMongoCollection<TDocument> ToMongoCollection<TDocument>(this ConfigurationSource<TDocument> configurationSource, MongoClient client) where TDocument : IDocument
         {
-            var collection = default(MongoDB.Driver.IMongoCollection<TDocument>);
+            MongoDB.Driver.IMongoCollection<TDocument> collection;
             if (configurationSource.Model != default(Model<TDocument>))
             {
                 collection = client.GetDatabase(configurationSource.Model.DatabaseName)
@@ -45,7 +45,7 @@ namespace MongoDbFramework.Extensions
             return collection;
         }
 
-        public static GridFSBucket ToGridFsBucket<TFileDocument>(this ConfigurationSource<TFileDocument> configurationSource, IMongoDatabase database) where TFileDocument : Document
+        public static GridFSBucket ToGridFsBucket<TFileDocument>(this ConfigurationSource<TFileDocument> configurationSource, IMongoDatabase database) where TFileDocument : FileDocument
         {
             var options = new GridFSBucketOptions()
             {

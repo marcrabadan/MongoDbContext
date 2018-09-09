@@ -1,7 +1,6 @@
 ﻿using MongoDB.Driver;
 using System;
 using System.Linq;
-using MongoDbFramework.Documents;
 
 namespace MongoDbFramework
 {

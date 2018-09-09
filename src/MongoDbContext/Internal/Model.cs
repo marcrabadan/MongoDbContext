@@ -4,7 +4,7 @@ using MongoDB.Driver;
 
 namespace MongoDbFramework
 {
-    public class Model<T> : Model where T : Document
+    public class Model<T> : Model where T : IDocument
     {
         public Type DocumentType => typeof(T);
         public List<Tuple<IndexKeysDefinition<T>, CreateIndexOptions<T>>> Indices { get; set; }

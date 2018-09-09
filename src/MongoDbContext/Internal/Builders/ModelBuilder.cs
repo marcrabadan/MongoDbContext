@@ -18,12 +18,12 @@ namespace MongoDbFramework
             Client = client;
         }
 
-        public DocumentTypeBuilder<TDocument> Document<TDocument>() where TDocument : Document
+        public DocumentTypeBuilder<TDocument> Document<TDocument>() where TDocument : IDocument
         {
             return new DocumentTypeBuilder<TDocument>(c => Apply(c));
         }
 
-        internal void Apply<TDocument>(DocumentTypeBuilder<TDocument> modelBuilder) where TDocument : Document
+        internal void Apply<TDocument>(DocumentTypeBuilder<TDocument> modelBuilder) where TDocument : IDocument
         {
             var config = new ConfigurationSource<TDocument>(Client);
             var model = new Model<TDocument>

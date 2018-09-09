@@ -2,7 +2,7 @@
 
 namespace MongoDbFramework
 {
-    public class ConfigurationSource<TDocument> : ConfigurationSource where TDocument : Document
+    public class ConfigurationSource<TDocument> : ConfigurationSource where TDocument : IDocument
     {
         public ConfigurationSource(MongoClient client) : base(client)
         {

@@ -1,7 +1,6 @@
-﻿using MongoDbFramework.Documents;
+﻿using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
-using MongoDB.Driver;
 
 namespace MongoDbFramework
 {

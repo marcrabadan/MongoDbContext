@@ -1,13 +1,11 @@
-﻿using Inflector;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDbFramework.Extensions;
+using MongoDB.Driver.GridFS;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.GridFS;
 
 namespace MongoDbFramework
 {
@@ -47,10 +45,9 @@ namespace MongoDbFramework
             return await find.ToListAsync(cancellationToken);
         }
 
-        public async Task<TDocument> FindAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TDocument> FindAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var objId = ObjectId.Parse(id);
-            return await Collection.Find(c => c.Id == objId).FirstOrDefaultAsync(cancellationToken);
+            return await Collection.Find(c => c.Id == id).FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<List<TDocument>> GetAllAsync(int page, CancellationToken cancellationToken = default(CancellationToken))

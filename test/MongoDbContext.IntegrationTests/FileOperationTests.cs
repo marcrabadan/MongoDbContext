@@ -35,10 +35,8 @@ namespace MongoDbFramework.IntegrationTests
             };
 
             var fileSaved = await _context.Images.UploadAsync(file);
-
-            Assert.NotEmpty(fileSaved);
-            Assert.True(ObjectId.TryParse(fileSaved, out var objectId));
-            Assert.True(objectId != ObjectId.Empty);
+            
+            Assert.True(fileSaved != ObjectId.Empty);
 
             await _context.Images.DeleteAsync(fileSaved);
 
@@ -61,10 +59,8 @@ namespace MongoDbFramework.IntegrationTests
             };
 
             var fileSaved = await _context.Images.UploadAsync(file);
-
-            Assert.NotEmpty(fileSaved);
-            Assert.True(ObjectId.TryParse(fileSaved, out var objectId));
-            Assert.True(objectId != ObjectId.Empty);
+            
+            Assert.True(fileSaved != ObjectId.Empty);
 
             var fileById = await _context.Images.GetFileByIdAsync(fileSaved);
 
@@ -91,10 +87,8 @@ namespace MongoDbFramework.IntegrationTests
             };
 
             var fileSaved = await _context.Images.UploadAsync(file);
-
-            Assert.NotEmpty(fileSaved);
-            Assert.True(ObjectId.TryParse(fileSaved, out var objectId));
-            Assert.True(objectId != ObjectId.Empty);
+            
+            Assert.True(fileSaved != ObjectId.Empty);
             
             var files = await _context.Images.GetFilesAllAsync();
 
@@ -117,10 +111,8 @@ namespace MongoDbFramework.IntegrationTests
             var expectedFileName = "image2.jpg";
 
             var fileSaved = await _context.Images.UploadAsync(file);
-
-            Assert.NotEmpty(fileSaved);
-            Assert.True(ObjectId.TryParse(fileSaved, out var objectId));
-            Assert.True(objectId != ObjectId.Empty);
+            
+            Assert.True(fileSaved != ObjectId.Empty);
 
             await _context.Images.RenameAsync(fileSaved, expectedFileName);
             
@@ -145,9 +137,7 @@ namespace MongoDbFramework.IntegrationTests
 
             var fileSaved = await _context.Images.UploadAsync(file);
 
-            Assert.NotEmpty(fileSaved);
-            Assert.True(ObjectId.TryParse(fileSaved, out var objectId));
-            Assert.True(objectId != ObjectId.Empty);
+            Assert.True(fileSaved != ObjectId.Empty);
 
             var fileInfo = await _context.Images.GetFileByNameAsync("image.jpg");
             

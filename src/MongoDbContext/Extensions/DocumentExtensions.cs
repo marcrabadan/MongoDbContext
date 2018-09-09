@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MongoDbFramework.Extensions
+namespace MongoDbFramework
 {
     public static class DocumentExtensions
     {

@@ -12,7 +12,7 @@ namespace MongoDbFramework
     {
         Task<TDocument> FirstOrDefaultAsync(Expression<Func<TDocument, bool>> expression, CancellationToken cancellationToken = default(CancellationToken));
         Task<List<TDocument>> GetAsync(int page, Expression<Func<TDocument, bool>> expression, Tuple<Expression<Func<TDocument, object>>, SortingType> sort = null, CancellationToken cancellationToken = default(CancellationToken));
-        Task<TDocument> FindAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TDocument> FindAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken));
         Task<List<TDocument>> GetAllAsync(int page, CancellationToken cancellationToken = default(CancellationToken));
         Task<TDocument> AddAsync(TDocument item, CancellationToken cancellationToken = default(CancellationToken));
         Task AddRangeAsync(List<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken));

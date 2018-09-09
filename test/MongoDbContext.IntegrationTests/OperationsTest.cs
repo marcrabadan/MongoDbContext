@@ -3,11 +3,12 @@ using MongoDB.Driver;
 using MongoDbFramework.IntegrationTests.Contexts;
 using MongoDbFramework.IntegrationTests.Documents;
 using MongoDbFramework.IntegrationTests.Fixtures;
+using MongoDbFramework.IntegrationTests.Mocks;
 using MongoDbFramework.IntegrationTests.Projections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MongoDbFramework.IntegrationTests.Mocks;
 using Xunit;
 
 namespace MongoDbFramework.IntegrationTests
@@ -32,11 +33,11 @@ namespace MongoDbFramework.IntegrationTests
             var added = await _context.Tweets.AddAsync(tweet);
 
             Assert.NotNull(added);
-            Assert.True(added.Id != ObjectId.Empty);
+            Assert.True(added.Id != Guid.Empty);
 
             await _context.Tweets.DeleteAsync(added);
 
-            var find = await _context.Tweets.FindAsync(added.Id.ToString());
+            var find = await _context.Tweets.FindAsync(added.Id);
 
             Assert.Null(find);
         }
@@ -52,20 +53,20 @@ namespace MongoDbFramework.IntegrationTests
             var added = await _context.Tweets.AddAsync(tweet);
 
             Assert.NotNull(added);
-            Assert.True(added.Id != ObjectId.Empty);
+            Assert.True(added.Id != Guid.Empty);
 
             added.Message = "Hi All!!!";
 
             await _context.Tweets.UpdateAsync(added);
 
-            var findUpdated = await _context.Tweets.FindAsync(added.Id.ToString());
+            var findUpdated = await _context.Tweets.FindAsync(added.Id);
 
             Assert.True(findUpdated.Id == added.Id);
             Assert.True(findUpdated.Message == "Hi All!!!");
 
             await _context.Tweets.DeleteAsync(added);
 
-            var find = await _context.Tweets.FindAsync(added.Id.ToString());
+            var find = await _context.Tweets.FindAsync(added.Id);
 
             Assert.Null(find);
         }
@@ -81,11 +82,11 @@ namespace MongoDbFramework.IntegrationTests
             var added = await _context.Tweets.AddAsync(tweet);
 
             Assert.NotNull(added);
-            Assert.True(added.Id != ObjectId.Empty);
+            Assert.True(added.Id != Guid.Empty);
 
             await _context.Tweets.DeleteAsync(added);
 
-            var find = await _context.Tweets.FindAsync(added.Id.ToString());
+            var find = await _context.Tweets.FindAsync(added.Id);
 
             Assert.Null(find);
         }
@@ -110,7 +111,7 @@ namespace MongoDbFramework.IntegrationTests
                 var added = await _context.Tweets.AddAsync(tweet);
 
                 Assert.NotNull(added);
-                Assert.True(added.Id != ObjectId.Empty);
+                Assert.True(added.Id != Guid.Empty);
             }
 
             var query = await _context.Tweets.GetAllAsync(1);
@@ -149,7 +150,7 @@ namespace MongoDbFramework.IntegrationTests
                 var added = await _context.Tweets.AddAsync(tweet);
 
                 Assert.NotNull(added);
-                Assert.True(added.Id != ObjectId.Empty);
+                Assert.True(added.Id != Guid.Empty);
             }
 
             var data = await _context.Tweets.GetAsync(1, c => c.Message == "Message1");
@@ -191,7 +192,7 @@ namespace MongoDbFramework.IntegrationTests
                 var added = await _context.Tweets.AddAsync(tweet);
 
                 Assert.NotNull(added);
-                Assert.True(added.Id != ObjectId.Empty);
+                Assert.True(added.Id != Guid.Empty);
             }
 
             Assert.NotNull(await _context.Tweets.FirstOrDefaultAsync(c => c.Message == "Message1"));

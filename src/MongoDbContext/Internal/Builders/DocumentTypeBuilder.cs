@@ -1,14 +1,11 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using MongoDbFramework.Documents;
-using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace MongoDbFramework
 {
-    public class DocumentTypeBuilder<T> where T : Document
+    public class DocumentTypeBuilder<T> where T : IDocument
     {
         private Action<DocumentTypeBuilder<T>> _apply;
 

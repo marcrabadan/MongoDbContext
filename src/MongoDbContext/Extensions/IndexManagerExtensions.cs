@@ -2,21 +2,22 @@
 using System;
 using System.Collections.Generic;
 
-namespace MongoDbFramework.Extensions
+namespace MongoDbFramework
 {
     public static class IndexManagerExtensions
     {
-        public static void SetIndices<T>(this IMongoIndexManager<T> indexManager, IList<Tuple<IndexKeysDefinition<T>, CreateIndexOptions<T>>> indices)
+        public static void SetIndices<TDocument>(this IMongoIndexManager<TDocument> indexManager, IList<Tuple<IndexKeysDefinition<TDocument>, CreateIndexOptions<TDocument>>> indices) where TDocument : IDocument
         {
             foreach (var index in indices)
             {
                 try
                 {
-                    indexManager.CreateOne(index.Item1, index.Item2);
+                    var indexModel = new CreateIndexModel<TDocument>(index.Item1, index.Item2);
+                    indexManager.CreateOne(indexModel);
                 }
                 catch (Exception)
                 {
-                    indexManager.DropOne(index.Item2.Name);
+                    throw;
                 }
             }
         }

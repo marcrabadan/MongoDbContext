@@ -1,14 +1,12 @@
-﻿using System;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 
 namespace MongoDbFramework
 {
-    public class Document
+    public class Document : IDocument<Guid>
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId Id { get; set; }
+        public Guid Id { get; set; }
 
         [BsonRepresentation(BsonType.DateTime)]
         public DateTime CreatedAt { get; set; }
