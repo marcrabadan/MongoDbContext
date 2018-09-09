@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,16 +48,19 @@ namespace MongoDbFramework
 
                 await find.MoveNextAsync(cancellationToken);
 
-                var file = find.Current.FirstOrDefault();
-                if (file == null)
+                var fileInfo = find.Current.FirstOrDefault();
+                if (fileInfo == null)
                     return default(TFile);
 
-                return new TFile
+                var file = new TFile
                 {
-                    Id = file.Id,
-                    FileName = file.Filename,
-                    Metadata = file.Metadata?.ToDictionary()
+                    Id = fileInfo.Id,
+                    FileName = fileInfo.Filename
                 };
+
+                SetMetadata(fileInfo, file);
+                
+                return file;
             }
             catch (Exception)
             {
@@ -70,16 +74,19 @@ namespace MongoDbFramework
            
             await find.MoveNextAsync(cancellationToken);
 
-            var file = find.Current.FirstOrDefault();
-            if (file == null)
+            var fileInfo = find.Current.FirstOrDefault();
+            if (fileInfo == null)
                 return default(TFile);
-
-            return new TFile
+            
+            var file = new TFile
             {
-                Id = file.Id,
-                FileName = file.Filename,
-                Metadata = file.Metadata?.ToDictionary()
+                Id = fileInfo.Id,
+                FileName = fileInfo.Filename,
             };
+
+            SetMetadata(fileInfo, file);
+
+            return file;
         }
 
         public async Task<List<TFile>> GetFilesAllAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -94,11 +101,17 @@ namespace MongoDbFramework
             var files = await Bucket.FindAsync(filter, options, cancellationToken);
             while (await files.MoveNextAsync(cancellationToken))
             {
-                var cursor = files.Current.Select(c => new TFile
+                var cursor = files.Current.Select(gridFsFileInfo =>
                 {
-                    Id = c.Id,
-                    FileName = c.Filename,
-                    Metadata = c.Metadata?.ToDictionary()
+                    var file = new TFile
+                    {
+                        Id = gridFsFileInfo.Id,
+                        FileName = gridFsFileInfo.Filename
+                    };
+
+                    SetMetadata(gridFsFileInfo, file);
+
+                    return file;
                 }).ToList();
 
                 list.AddRange(cursor);
@@ -123,7 +136,7 @@ namespace MongoDbFramework
             var id = await Bucket.UploadFromBytesAsync(file.FileName, file.Data, new GridFSUploadOptions
             {
                 ChunkSizeBytes = ConfigurationSource?.Model?.FileStorageOptions?.ChunkSize ?? 1048576,
-                Metadata = ConfigurationSource?.Model?.FileStorageOptions?.MetaData?.ToBsonDocument()
+                Metadata = MergeMetadata(ConfigurationSource?.Model?.FileStorageOptions?.MetaData, file).ToBsonDocument()
             }, cancellationToken);
 
             return id;
@@ -184,6 +197,83 @@ namespace MongoDbFramework
                     }
                 }
             }
+        }
+
+        private void SetMetadata(GridFSFileInfo fileInfo, TFile file)
+        {
+            string fileType = string.Empty;
+            var dictionary = fileInfo.Metadata?.ToDictionary();
+            if (dictionary != null)
+            {
+                fileType = dictionary.ContainsKey("FileType") ? dictionary["FileType"].ToString() : string.Empty;
+            }
+            
+            file.FileType = fileType;
+            file.Metadata = MergeMetadata(fileInfo, file);
+        }
+        
+        private Dictionary<string, object> MergeMetadata(Dictionary<string, object> metadataConfig, TFile file)
+        {
+            var result = new Dictionary<string, object>();
+            file.Metadata = file.Metadata ?? new Dictionary<string, object>();
+            metadataConfig = metadataConfig ?? new Dictionary<string, object>();
+
+            if (!(file.Metadata.Any() && metadataConfig.Any()))
+                return null;
+
+            foreach (var fileMetadata in file.Metadata)
+            {
+                if (!result.ContainsKey(fileMetadata.Key))
+                {
+                    result.Add(fileMetadata.Key, fileMetadata.Value);
+                }
+            }
+
+            foreach (var fileMetadata in metadataConfig)
+            {
+                if (!result.ContainsKey(fileMetadata.Key))
+                {
+                    result.Add(fileMetadata.Key, fileMetadata.Value);
+                }
+                else
+                {
+                    result.Add(fileMetadata.Key, fileMetadata.Value ?? result[fileMetadata.Key]);
+                }
+            }
+
+            return result;
+        }
+
+        private Dictionary<string, object> MergeMetadata(GridFSFileInfo fileInfo, TFile file)
+        {
+            var result = new Dictionary<string, object>();
+            file.Metadata = file.Metadata ?? new Dictionary<string, object>();
+            var dict = fileInfo?.Metadata?.ToDictionary() ?? new Dictionary<string, object>();
+
+            if (!(file.Metadata.Any() && dict.Any()))
+                return null;
+
+            foreach (var fileMetadata in file.Metadata)
+            {
+                if (!result.ContainsKey(fileMetadata.Key))
+                {
+                    result.Add(fileMetadata.Key, fileMetadata.Value);
+                }
+            }
+
+            foreach (var fileMetadata in dict)
+            {
+                if (!result.ContainsKey(fileMetadata.Key))
+                {
+                    result.Add(fileMetadata.Key, fileMetadata.Value);
+                }
+                else
+                {
+                    result.Add(fileMetadata.Key, fileMetadata.Value ?? result[fileMetadata.Key]);
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MongoDB.Bson;
 using MongoDbFramework.IntegrationTests.Contexts;
 using MongoDbFramework.IntegrationTests.Documents;
 using MongoDbFramework.IntegrationTests.Fixtures;
-using MongoDB.Bson;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace MongoDbFramework.IntegrationTests
