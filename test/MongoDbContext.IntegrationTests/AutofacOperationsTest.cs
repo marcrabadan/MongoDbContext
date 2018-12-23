@@ -13,19 +13,19 @@ using Xunit;
 
 namespace MongoDbFramework.IntegrationTests
 {
-    [Trait("IoC", "Microsoft.Extensions.DependencyInjection")]
+    [Trait("IoC", "Autofac")]
     [Trait("Category", "Operations")]
-    public class OperationsTest : IClassFixture<SocialContextFixture<SocialContext>>
+    public class AutofacOperationsTest : IClassFixture<AutofacSocialContextFixture<SocialContext>>
     {
         private readonly SocialContext _context;
 
-        public OperationsTest(SocialContextFixture<SocialContext> fixture)
+        public AutofacOperationsTest(AutofacSocialContextFixture<SocialContext> fixture)
         {
             _context = fixture.Context;
         }
 
-        [Fact()]
-        public async Task AddTests()
+        [Fact]
+        public async Task AutofacAddTests()
         {
             var tweet = new Tweet
             {
@@ -45,7 +45,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task UpdateTests()
+        public async Task AutofacUpdateTests()
         {
             var tweet = new Tweet
             {
@@ -74,7 +74,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task DeleteTests()
+        public async Task AutofacDeleteTests()
         {
             var tweet = new Tweet
             {
@@ -94,7 +94,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task GetAllTests()
+        public async Task AutofacGetAllTests()
         {
             var tweets = new List<Tweet>
             {
@@ -133,7 +133,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task GetTests()
+        public async Task AutofacGetTests()
         {
             var tweets = new List<Tweet>
             {
@@ -175,7 +175,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task FirstOrDefaultTests()
+        public async Task AutofacFirstOrDefaultTests()
         {
             var tweets = new List<Tweet>
             {
@@ -214,7 +214,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task AddRangeTests()
+        public async Task AutofacAddRangeTests()
         {
             var tweets = new List<Tweet>
             {
@@ -246,7 +246,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task IndexTest()
+        public async Task AutofacIndexTest()
         {
             var movies = MovieMock.GetMovieMocks();
             var expectedIndices = new List<string>
@@ -288,7 +288,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task MapReduceTests()
+        public async Task AutofacMapReduceTests()
         {
             var movies = MovieMock.GetMovieMocks();
 

@@ -10,19 +10,19 @@ using Xunit;
 
 namespace MongoDbFramework.IntegrationTests
 {
-    [Trait("IoC", "Microsoft.Extensions.DependencyInjection")]
+    [Trait("IoC", "Autofac")]
     [Trait("Category", "FileOperations")]
-    public class FileOperationTests : IClassFixture<SocialContextFixture<SocialContext>>
+    public class AutofacFileOperationTests : IClassFixture<AutofacSocialContextFixture<SocialContext>>
     {
         private readonly SocialContext _context;
 
-        public FileOperationTests(SocialContextFixture<SocialContext> fixture)
+        public AutofacFileOperationTests(AutofacSocialContextFixture<SocialContext> fixture)
         {
             _context = fixture.Context;
         }
 
         [Fact]
-        public async Task UploadAndDeleteFile()
+        public async Task AutofacUploadAndDeleteFile()
         {
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "image.jpg");
 
@@ -52,7 +52,7 @@ namespace MongoDbFramework.IntegrationTests
         }
         
         [Fact]
-        public async Task UploadAndGetFileById()
+        public async Task AutofacUploadAndGetFileById()
         {
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "image.jpg");
 
@@ -86,7 +86,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task GetAllFiles()
+        public async Task AutofacGetAllFiles()
         {
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "image.jpg");
 
@@ -115,7 +115,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task RenameFile()
+        public async Task AutofacRenameFile()
         {
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "image.jpg");
 
@@ -147,7 +147,7 @@ namespace MongoDbFramework.IntegrationTests
         }
 
         [Fact]
-        public async Task GetByFileName()
+        public async Task AutofacGetByFileName()
         {
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "image.jpg");
 
