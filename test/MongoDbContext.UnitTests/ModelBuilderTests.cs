@@ -1,6 +1,6 @@
-using System.Linq;
 using MongoDB.Driver;
 using MongoDbFramework.UnitTests.Documents;
+using System.Linq;
 using Xunit;
 
 namespace MongoDbFramework.UnitTests
@@ -15,6 +15,12 @@ namespace MongoDbFramework.UnitTests
 
             modelBuilder
                 .Document<CustomerDocument>()
+                .Map(c =>
+                {
+                    c.AutoMap();
+                    c.SetDiscriminatorIsRequired(true);
+                    c.SetDiscriminator(typeof(CustomerDocument).FullName);
+                })
                 .WithDatabase("Database");
 
             Assert.True(modelBuilder.Models.ContainsKey(typeof(CustomerDocument)));
@@ -32,6 +38,12 @@ namespace MongoDbFramework.UnitTests
 
             modelBuilder
                 .Document<CustomerDocument>()
+                .Map(c =>
+                {
+                    c.AutoMap();
+                    c.SetDiscriminatorIsRequired(true);
+                    c.SetDiscriminator(typeof(CustomerDocument).FullName);
+                })
                 .WithDatabase("Database")
                 .WithCollection("Collection");
 

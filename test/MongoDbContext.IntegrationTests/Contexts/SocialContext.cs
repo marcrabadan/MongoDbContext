@@ -10,11 +10,25 @@ namespace MongoDbFramework.IntegrationTests.Contexts
 
         public override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Document<Tweet>()
+            modelBuilder
+                .Document<Tweet>()
+                .Map(c =>
+                {
+                    c.AutoMap();
+                    c.SetDiscriminatorIsRequired(true);
+                    c.SetDiscriminator(typeof(Tweet).FullName);
+                })
                 .WithDatabase("socialDb")
                 .WithCollection("tweets");
 
-            modelBuilder.Document<Movie>()
+            modelBuilder
+                .Document<Movie>()
+                .Map(c =>
+                {
+                    c.AutoMap();
+                    c.SetDiscriminatorIsRequired(true);
+                    c.SetDiscriminator(typeof(Movie).FullName);
+                })
                 .WithDatabase("socialDb")
                 .WithCollection("movies")
                 .DefineIndex(c => c.Ascending(x => x.Category), c =>

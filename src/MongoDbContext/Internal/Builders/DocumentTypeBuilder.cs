@@ -1,4 +1,6 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,30 @@ namespace MongoDbFramework
         internal List<Tuple<IndexKeysDefinition<T>, CreateIndexOptions<T>>> Indexes { get; set; }
         internal bool IsFileDocument { get; set; }
         internal FileStorageOptions FileStorageOptions { get; set; }
+        
+        public DocumentTypeBuilder<T> Map(Action<BsonClassMap<T>> bsonClassMapAction)
+        {
+            try
+            {
+                if (!BsonClassMap.IsClassMapRegistered(typeof(T)))
+                {
+                    BsonClassMap.RegisterClassMap<T>(bsonClassMapAction);
+                }
+                return this;
+            }
+            catch (ArgumentException ex)
+            {
+                if (ex.Message.Contains("An item with the same key has already been added"))
+                {
+                    return this;
+                }
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         public DocumentTypeBuilder<T> WithDatabase(string name)
         {
