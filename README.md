@@ -36,12 +36,34 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
         public override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Document<Tweet>()
+                .Map(c =>
+                {
+                    c.AutoMap();
+                    c.SetDiscriminatorIsRequired(true);
+                    c.SetDiscriminator(typeof(CustomerDocument).FullName);
+                })
                 .WithDatabase("socialDb")
-                .WithCollection("tweets");
+                .WithCollection("tweets")
+                .DefineIndex(c => c.Ascending(x => x.Name), c =>
+                {
+                    c.Name = "NameIndex";
+                    c.Unique = true;
+                });
 
             modelBuilder.Document<Movie>()
+                .Map(c =>
+                {
+                    c.AutoMap();
+                    c.SetDiscriminatorIsRequired(true);
+                    c.SetDiscriminator(typeof(CustomerDocument).FullName);
+                })
                 .WithDatabase("socialDb")
-                .WithCollection("movies");
+                .WithCollection("movies")
+                .DefineIndex(c => c.Ascending(x => x.Name), c =>
+                {
+                    c.Name = "NameIndex";
+                    c.Unique = true;
+                });
                             
             modelBuilder.Document<ImageBlob>()
                 .WithDatabase("fileStorage")
