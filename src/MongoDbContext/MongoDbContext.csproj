@@ -10,7 +10,7 @@
     <PackageProjectUrl>https://github.com/marcrabadan/MongoDbContext</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/marcrabadan/MongoDbContext/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/marcrabadan/MongoDbContext</RepositoryUrl>
-    <Version>3.0.2</Version>
+    <Version>3.0.3</Version>
     <AssemblyName>MongoDbFramework</AssemblyName>
     <RootNamespace>MongoDbFramework</RootNamespace>
     <FileVersion>3.0.2.0</FileVersion>
