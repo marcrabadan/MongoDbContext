@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MongoDbFramework
 {
-    public interface IMongoCollection<TDocument> where TDocument : Document
+    public interface IMongoCollection<TDocument> : IDisposable where TDocument : Document
     {
         Task<TDocument> FirstOrDefaultAsync(Expression<Func<TDocument, bool>> expression, CancellationToken cancellationToken = default(CancellationToken));
         Task<List<TDocument>> GetAsync(int page, Expression<Func<TDocument, bool>> expression, Tuple<Expression<Func<TDocument, object>>, SortingType> sort = null, CancellationToken cancellationToken = default(CancellationToken));

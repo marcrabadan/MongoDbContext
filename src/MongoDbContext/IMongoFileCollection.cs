@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using MongoDB.Bson;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
 
 namespace MongoDbFramework
 {
-
-    public interface IMongoFileCollection<TFile> where TFile : FileDocument, new()
+    public interface IMongoFileCollection<TFile> : IDisposable where TFile : FileDocument, new()
     {
         Task<byte[]> DownloadByFileNameAsync(string fileName, CancellationToken cancellationToken = default(CancellationToken));
         Task<byte[]> DownloadByIdAsync(ObjectId id, CancellationToken cancellationToken = default(CancellationToken));
