@@ -89,6 +89,13 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
   services.AddMongoDbContext<SocialContext>();
     
 ```
+## IoC Provider supported:
+
+> Install-Package MongoDbContext.Extensions.DependencyInjection
+
+> Install-Package MongoDbContext.Autofac
+
+> Install-Package MongoDbContext.CastleWindsor
 
 # 3 - Configuring
 
