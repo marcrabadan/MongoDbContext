@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using System;
 
 namespace MongoDbFramework
 {
@@ -9,9 +10,14 @@ namespace MongoDbFramework
         }
 
         internal Model<TDocument> Model { get; set; }
+
+        public override void DisposeResources()
+        {
+            this.Model = null;
+        }
     }
 
-    public class ConfigurationSource
+    public abstract class ConfigurationSource : IDisposable
     {
         public ConfigurationSource(MongoClient client)
         {
@@ -19,5 +25,13 @@ namespace MongoDbFramework
         }
 
         internal MongoClient Source { get; set; }
+
+        public abstract void DisposeResources();
+
+        public void Dispose()
+        {
+            this.Source = null;
+            this.DisposeResources();
+        }
     }
 }

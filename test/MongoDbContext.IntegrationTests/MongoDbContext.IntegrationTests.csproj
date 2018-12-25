@@ -1,30 +1,37 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
 
     <AssemblyName>MongoDbFramework.IntegrationTests</AssemblyName>
 
     <RootNamespace>MongoDbFramework.IntegrationTests</RootNamespace>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
-
+  
   <ItemGroup>
+    <ProjectReference Include="..\..\src\MongoDbContext.Autofac\MongoDbContext.Autofac.csproj" />
+    <ProjectReference Include="..\..\src\MongoDbContext.CastleWindsor\MongoDbContext.CastleWindsor.csproj" />
+    <ProjectReference Include="..\..\src\MongoDbContext.Extensions.DependencyInjection\MongoDbContext.Extensions.DependencyInjection.csproj" />
     <ProjectReference Include="..\..\src\MongoDbContext\MongoDbContext.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Images\image.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

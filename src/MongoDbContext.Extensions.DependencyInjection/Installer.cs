@@ -2,16 +2,16 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 
-namespace MongoDbFramework
+namespace MongoDbFramework.Extensions.DependencyInjection
 {
-    public static class ServiceCollectionExtensions
+    public static class Installer
     {
         public static void AddMongoDbContext<TContext>(
-            this IServiceCollection services,
-            Action<MongoDbOptionBuilder> options,
-            ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
-            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
-            where TContext : MongoDbContext
+               this IServiceCollection services,
+               Action<MongoDbOptionBuilder> options,
+               ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
+               ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+               where TContext : MongoDbContext
         {
             services.AddMongoDbContext<TContext>((p, b) => options.Invoke(b), contextLifetime, optionsLifetime);
         }
@@ -30,7 +30,7 @@ namespace MongoDbFramework
             {
                 optionsLifetime = ServiceLifetime.Singleton;
             }
-            
+
             serviceCollection.TryAdd(
                 new ServiceDescriptor(
                     typeof(MongoDbOptions<TContext>),

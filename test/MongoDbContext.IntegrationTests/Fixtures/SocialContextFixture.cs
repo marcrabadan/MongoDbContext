@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using MongoDbFramework.Extensions.DependencyInjection;
 
 namespace MongoDbFramework.IntegrationTests.Fixtures
 {
-    public class SocialContextFixture<TContext> : IDisposable where TContext : MongoDbContext
+    public class SocialContextFixture<TContext> where TContext : MongoDbContext
     {
         public SocialContextFixture()
         {
@@ -18,7 +19,7 @@ namespace MongoDbFramework.IntegrationTests.Fixtures
         }
 
         public TContext Context { get; protected set; }
-        
+
         public void Dispose()
         {
             if (Context != null)

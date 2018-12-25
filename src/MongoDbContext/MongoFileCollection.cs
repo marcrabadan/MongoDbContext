@@ -3,7 +3,6 @@ using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,29 +12,31 @@ namespace MongoDbFramework
 
     public class MongoFileCollection<TFile> : IMongoFileCollection<TFile> where TFile : FileDocument, new()
     {
+        private readonly ConfigurationSource<TFile> configurationSource;
+
         public MongoFileCollection(ConfigurationSource<TFile> configurationSource)
         {
-            ConfigurationSource = configurationSource;
-            Client = configurationSource.ToMongoClient();
-            Database = configurationSource.ToMongoDatabase(Client);
-            Bucket = configurationSource.ToGridFsBucket(Database);
+            this.configurationSource = configurationSource ?? throw new ArgumentNullException(nameof(configurationSource));
+
+            Client = this.configurationSource?.ToMongoClient();
+            Database = this.configurationSource?.ToMongoDatabase(Client);
+            Bucket = this.configurationSource?.ToGridFsBucket(Database);
         }
 
-        internal MongoClient Client { get; }
-        internal IMongoDatabase Database { get; }
-        internal GridFSBucket Bucket { get; }
-        internal ConfigurationSource<TFile> ConfigurationSource { get; }
+        protected internal MongoClient Client { get; set; }
+        protected internal IMongoDatabase Database { get; set; }
+        protected internal GridFSBucket Bucket { get; set; }
 
         public async Task<byte[]> DownloadByFileNameAsync(string fileName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await Bucket.DownloadAsBytesByNameAsync(fileName, null, cancellationToken);
+            return await Bucket.DownloadAsBytesByNameAsync(fileName, null, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<byte[]> DownloadByIdAsync(ObjectId id, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (id == null || id == ObjectId.Empty) throw new InvalidOperationException("Id is null or empty.");
 
-            return await Bucket.DownloadAsBytesAsync(id, null, cancellationToken);
+            return await Bucket.DownloadAsBytesAsync(id, null, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<TFile> GetFileByIdAsync(ObjectId id, CancellationToken cancellationToken = default(CancellationToken))
@@ -44,9 +45,9 @@ namespace MongoDbFramework
 
             try
             {
-                var find = await Bucket.FindAsync(new BsonDocument("_id", id), null, cancellationToken);
+                var find = await Bucket.FindAsync(new BsonDocument("_id", id), null, cancellationToken).ConfigureAwait(false);
 
-                await find.MoveNextAsync(cancellationToken);
+                await find.MoveNextAsync(cancellationToken).ConfigureAwait(false);
 
                 var fileInfo = find.Current.FirstOrDefault();
                 if (fileInfo == null)
@@ -70,9 +71,9 @@ namespace MongoDbFramework
 
         public async Task<TFile> GetFileByNameAsync(string fileName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var find = await Bucket.FindAsync(new BsonDocument("filename", fileName), null, cancellationToken);
+            var find = await Bucket.FindAsync(new BsonDocument("filename", fileName), null, cancellationToken).ConfigureAwait(false);
            
-            await find.MoveNextAsync(cancellationToken);
+            await find.MoveNextAsync(cancellationToken).ConfigureAwait(false);
 
             var fileInfo = find.Current.FirstOrDefault();
             if (fileInfo == null)
@@ -98,8 +99,8 @@ namespace MongoDbFramework
                 BatchSize = 100,
                 Limit = 100
             };
-            var files = await Bucket.FindAsync(filter, options, cancellationToken);
-            while (await files.MoveNextAsync(cancellationToken))
+            var files = await Bucket.FindAsync(filter, options, cancellationToken).ConfigureAwait(false);
+            while (await files.MoveNextAsync(cancellationToken).ConfigureAwait(false))
             {
                 var cursor = files.Current.Select(gridFsFileInfo =>
                 {
@@ -135,9 +136,9 @@ namespace MongoDbFramework
 
             var id = await Bucket.UploadFromBytesAsync(file.FileName, file.Data, new GridFSUploadOptions
             {
-                ChunkSizeBytes = ConfigurationSource?.Model?.FileStorageOptions?.ChunkSize ?? 1048576,
-                Metadata = MergeMetadata(ConfigurationSource?.Model?.FileStorageOptions?.MetaData, file).ToBsonDocument()
-            }, cancellationToken);
+                ChunkSizeBytes = this.configurationSource?.Model?.FileStorageOptions?.ChunkSize ?? 1048576,
+                Metadata = MergeMetadata(this.configurationSource?.Model?.FileStorageOptions?.MetaData, file).ToBsonDocument()
+            }, cancellationToken).ConfigureAwait(false);
 
             return id;
         }
@@ -146,14 +147,14 @@ namespace MongoDbFramework
         {
             if (id == null || id == ObjectId.Empty) throw new InvalidOperationException("Id is null or empty.");
             
-            await Bucket.DeleteAsync(id, cancellationToken);
+            await Bucket.DeleteAsync(id, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task RenameAsync(ObjectId id, string fileName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (id == null || id == ObjectId.Empty) throw new InvalidOperationException("Id is null or empty.");
 
-            await Bucket.RenameAsync(id, fileName, cancellationToken);
+            await Bucket.RenameAsync(id, fileName, cancellationToken).ConfigureAwait(false);
         }
 
         private void SetDefaultValues(State state, TFile file)
@@ -274,6 +275,14 @@ namespace MongoDbFramework
             }
 
             return result;
+        }
+
+        public void Dispose()
+        {
+            this.configurationSource?.Dispose();
+            this.Client = null;
+            this.Database = null;
+            this.Bucket = null;
         }
     }
 }

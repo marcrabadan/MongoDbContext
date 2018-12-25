@@ -1,6 +1,5 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDbFramework.IntegrationTests.Contexts;
 using MongoDbFramework.IntegrationTests.Documents;
 using MongoDbFramework.IntegrationTests.Fixtures;
 using MongoDbFramework.IntegrationTests.Mocks;
@@ -13,86 +12,77 @@ using Xunit;
 
 namespace MongoDbFramework.IntegrationTests
 {
-    public class OperationsTest : IClassFixture<SocialContextFixture<SocialContext>>
+    public abstract class SharedOperationTests<TContext> where TContext : MongoDbContext
     {
-        private readonly SocialContext _context;
+        public TContext Context { get; set; }
 
-        public OperationsTest(SocialContextFixture<SocialContext> fixture)
-        {
-            _context = fixture.Context;
-        }
-
-        [Fact]
-        public async Task AddTests()
+        public async Task AddAsync()
         {
             var tweet = new Tweet
             {
                 Message = "Hi!!!"
             };
 
-            var added = await _context.Tweets.AddAsync(tweet);
+            var added = await this.Context.Collection<Tweet>().AddAsync(tweet).ConfigureAwait(false);
 
             Assert.NotNull(added);
             Assert.True(added.Id != Guid.Empty);
 
-            await _context.Tweets.DeleteAsync(added);
+            await this.Context.Collection<Tweet>().DeleteAsync(added).ConfigureAwait(false);
 
-            var find = await _context.Tweets.FindAsync(added.Id);
+            var find = await this.Context.Collection<Tweet>().FindAsync(added.Id).ConfigureAwait(false);
 
             Assert.Null(find);
         }
-
-        [Fact]
-        public async Task UpdateTests()
+        
+        public async Task UpdateAsync()
         {
             var tweet = new Tweet
             {
                 Message = "Hi!!!"
             };
 
-            var added = await _context.Tweets.AddAsync(tweet);
+            var added = await this.Context.Collection<Tweet>().AddAsync(tweet).ConfigureAwait(false);
 
             Assert.NotNull(added);
             Assert.True(added.Id != Guid.Empty);
 
             added.Message = "Hi All!!!";
 
-            await _context.Tweets.UpdateAsync(added);
+            await this.Context.Collection<Tweet>().UpdateAsync(added).ConfigureAwait(false);
 
-            var findUpdated = await _context.Tweets.FindAsync(added.Id);
+            var findUpdated = await this.Context.Collection<Tweet>().FindAsync(added.Id).ConfigureAwait(false);
 
             Assert.True(findUpdated.Id == added.Id);
             Assert.True(findUpdated.Message == "Hi All!!!");
 
-            await _context.Tweets.DeleteAsync(added);
+            await this.Context.Collection<Tweet>().DeleteAsync(added).ConfigureAwait(false);
 
-            var find = await _context.Tweets.FindAsync(added.Id);
+            var find = await this.Context.Collection<Tweet>().FindAsync(added.Id).ConfigureAwait(false);
 
             Assert.Null(find);
         }
-
-        [Fact]
-        public async Task DeleteTests()
+        
+        public async Task DeleteAsync()
         {
             var tweet = new Tweet
             {
                 Message = "Hi!!!"
             };
 
-            var added = await _context.Tweets.AddAsync(tweet);
+            var added = await this.Context.Collection<Tweet>().AddAsync(tweet).ConfigureAwait(false);
 
             Assert.NotNull(added);
             Assert.True(added.Id != Guid.Empty);
 
-            await _context.Tweets.DeleteAsync(added);
+            await this.Context.Collection<Tweet>().DeleteAsync(added).ConfigureAwait(false);
 
-            var find = await _context.Tweets.FindAsync(added.Id);
+            var find = await this.Context.Collection<Tweet>().FindAsync(added.Id).ConfigureAwait(false);
 
             Assert.Null(find);
         }
-
-        [Fact]
-        public async Task GetAllTests()
+        
+        public async Task GetAllAsync()
         {
             var tweets = new List<Tweet>
             {
@@ -108,30 +98,29 @@ namespace MongoDbFramework.IntegrationTests
 
             foreach (var tweet in tweets)
             {
-                var added = await _context.Tweets.AddAsync(tweet);
+                var added = await this.Context.Collection<Tweet>().AddAsync(tweet).ConfigureAwait(false);
 
                 Assert.NotNull(added);
                 Assert.True(added.Id != Guid.Empty);
             }
 
-            var query = await _context.Tweets.GetAllAsync(1);
+            var query = await this.Context.Collection<Tweet>().GetAllAsync(1).ConfigureAwait(false);
             var data = query.ToList();
 
             Assert.NotEmpty(data);
 
             foreach (var item in data)
             {
-                await _context.Tweets.DeleteAsync(item);
+                await this.Context.Collection<Tweet>().DeleteAsync(item).ConfigureAwait(false);
             }
 
-            query = await _context.Tweets.GetAllAsync(1);
+            query = await this.Context.Collection<Tweet>().GetAllAsync(1).ConfigureAwait(false);
             data = query.ToList();
 
             Assert.Empty(data);
         }
-
-        [Fact]
-        public async Task GetTests()
+        
+        public async Task GetAsync()
         {
             var tweets = new List<Tweet>
             {
@@ -147,33 +136,32 @@ namespace MongoDbFramework.IntegrationTests
 
             foreach (var tweet in tweets)
             {
-                var added = await _context.Tweets.AddAsync(tweet);
+                var added = await this.Context.Collection<Tweet>().AddAsync(tweet).ConfigureAwait(false);
 
                 Assert.NotNull(added);
                 Assert.True(added.Id != Guid.Empty);
             }
 
-            var data = await _context.Tweets.GetAsync(1, c => c.Message == "Message1");
+            var data = await this.Context.Collection<Tweet>().GetAsync(1, c => c.Message == "Message1").ConfigureAwait(false);
 
             Assert.NotEmpty(data);
             Assert.True(data.Count == 1);
 
-            var query = await _context.Tweets.GetAllAsync(1);
+            var query = await this.Context.Collection<Tweet>().GetAllAsync(1).ConfigureAwait(false);
             data = query.ToList();
 
             foreach (var item in data)
             {
-                await _context.Tweets.DeleteAsync(item);
+                await this.Context.Collection<Tweet>().DeleteAsync(item).ConfigureAwait(false);
             }
 
-            query = await _context.Tweets.GetAllAsync(1);
+            query = await this.Context.Collection<Tweet>().GetAllAsync(1).ConfigureAwait(false);
             data = query.ToList();
 
             Assert.Empty(data);
         }
-
-        [Fact]
-        public async Task FirstOrDefaultTests()
+        
+        public async Task FirstOrDefaultAsync()
         {
             var tweets = new List<Tweet>
             {
@@ -189,30 +177,29 @@ namespace MongoDbFramework.IntegrationTests
 
             foreach (var tweet in tweets)
             {
-                var added = await _context.Tweets.AddAsync(tweet);
+                var added = await this.Context.Collection<Tweet>().AddAsync(tweet).ConfigureAwait(false);
 
                 Assert.NotNull(added);
                 Assert.True(added.Id != Guid.Empty);
             }
 
-            Assert.NotNull(await _context.Tweets.FirstOrDefaultAsync(c => c.Message == "Message1"));
+            Assert.NotNull(await this.Context.Collection<Tweet>().FirstOrDefaultAsync(c => c.Message == "Message1").ConfigureAwait(false));
 
-            var query = await _context.Tweets.GetAllAsync(1);
+            var query = await this.Context.Collection<Tweet>().GetAllAsync(1).ConfigureAwait(false);
             var data = query.ToList();
 
             foreach (var item in data)
             {
-                await _context.Tweets.DeleteAsync(item);
+                await this.Context.Collection<Tweet>().DeleteAsync(item).ConfigureAwait(false);
             }
 
-            query = await _context.Tweets.GetAllAsync(1);
+            query = await this.Context.Collection<Tweet>().GetAllAsync(1).ConfigureAwait(false);
             data = query.ToList();
 
             Assert.Empty(data);
         }
-
-        [Fact]
-        public async Task AddRangeTests()
+        
+        public async Task AddRangeAsync()
         {
             var tweets = new List<Tweet>
             {
@@ -226,25 +213,24 @@ namespace MongoDbFramework.IntegrationTests
                 }
             };
 
-            await _context.Tweets.AddRangeAsync(tweets);
+            await this.Context.Collection<Tweet>().AddRangeAsync(tweets).ConfigureAwait(false);
 
-            var data = await _context.Tweets.GetAllAsync(1);
+            var data = await this.Context.Collection<Tweet>().GetAllAsync(1).ConfigureAwait(false);
 
             Assert.NotEmpty(data);
             Assert.True(data.Count == tweets.Count);
 
             foreach (var item in data)
             {
-                await _context.Tweets.DeleteAsync(item);
+                await this.Context.Collection<Tweet>().DeleteAsync(item).ConfigureAwait(false);
             }
 
-            data = await _context.Tweets.GetAllAsync(1);
+            data = await this.Context.Collection<Tweet>().GetAllAsync(1).ConfigureAwait(false);
 
             Assert.Empty(data);
         }
-
-        [Fact]
-        public async Task IndexTest()
+        
+        public async Task IndexAsync()
         {
             var movies = MovieMock.GetMovieMocks();
             var expectedIndices = new List<string>
@@ -253,13 +239,11 @@ namespace MongoDbFramework.IntegrationTests
                 "CategoryIndex"
             };
 
-            await _context.Movies.AddRangeAsync(movies);
+            await this.Context.Collection<Movie>().AddRangeAsync(movies).ConfigureAwait(false);
 
-            var data = await _context.Movies.GetAllAsync(1);
-
-            var collection = _context.Movies as MongoCollection<Movie>;
-
-            var indexManager = collection.Collection.Indexes;
+            var data = await this.Context.Collection<Movie>().GetAllAsync(1).ConfigureAwait(false);
+            
+            var indexManager = this.Context.Collection<Movie>().Collection.Indexes;
 
             var indices = indexManager.List();
             while (indices.MoveNext())
@@ -269,7 +253,7 @@ namespace MongoDbFramework.IntegrationTests
                 {
                     Assert.Contains(index.Elements, c =>
                     {
-                        if(index.TryGetValue("name", out var name))
+                        if (index.TryGetValue("name", out var name))
                         {
                             return expectedIndices.Any(x => name.ToString().Contains(x));
                         }
@@ -281,12 +265,11 @@ namespace MongoDbFramework.IntegrationTests
 
             foreach (var item in data)
             {
-                await _context.Movies.DeleteAsync(item);
+                await this.Context.Collection<Movie>().DeleteAsync(item).ConfigureAwait(false);
             }
         }
-
-        [Fact]
-        public async Task MapReduceTests()
+        
+        public async Task MapReduceAsync()
         {
             var movies = MovieMock.GetMovieMocks();
 
@@ -314,13 +297,13 @@ namespace MongoDbFramework.IntegrationTests
                 }
             };
 
-            var moviesList = await _context.Movies.GetAllAsync(1);
+            var moviesList = await this.Context.Collection<Movie>().GetAllAsync(1).ConfigureAwait(false);
             foreach (var movie in moviesList)
             {
-                await _context.Movies.DeleteAsync(movie);
+                await this.Context.Collection<Movie>().DeleteAsync(movie).ConfigureAwait(false);
             }
 
-            await _context.Movies.AddRangeAsync(movies);
+            await this.Context.Collection<Movie>().AddRangeAsync(movies).ConfigureAwait(false);
 
             BsonJavaScript map = @"
                 function() {
@@ -351,7 +334,7 @@ namespace MongoDbFramework.IntegrationTests
                 OutputOptions = MapReduceOutputOptions.Inline
             };
 
-            var statistics = await _context.Movies.MapReduceAsync(map, reduce, options);
+            var statistics = await this.Context.Collection<Movie>().MapReduceAsync(map, reduce, options).ConfigureAwait(false);
 
             foreach (var item in statistics)
             {
