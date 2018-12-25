@@ -1,55 +1,57 @@
-﻿using System;
+﻿using Castle.Core;
+using Castle.MicroKernel;
+using Castle.MicroKernel.Registration;
+using Castle.Windsor;
+using System;
 
-namespace MongoDbFramework
+namespace MongoDbFramework.CastleWindsor
 {
     public static class Installer
     {
-        //public static void AddMongoDbContext<TContext>(
-        //       this IServiceCollection services,
-        //       Action<MongoDbOptionBuilder> options,
-        //       ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
-        //       ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
-        //       where TContext : MongoDbContext
-        //{
-        //    services.AddMongoDbContext<TContext>((p, b) => options.Invoke(b), contextLifetime, optionsLifetime);
-        //}
+        public static void AddMongoDbContext<TContext>(
+               this IWindsorContainer containerBuilder,
+               Action<MongoDbOptionBuilder> options,
+               LifestyleType contextLifestyle = LifestyleType.Scoped,
+               LifestyleType optionsLifestyle = LifestyleType.Scoped)
+               where TContext : MongoDbContext
+        {
+            containerBuilder.AddMongoDbContext<TContext>((p, b) => options.Invoke(b), contextLifestyle, optionsLifestyle);
+        }
 
-        //private static IServiceCollection AddMongoDbContext<TContext>(
-        //    this IServiceCollection serviceCollection,
-        //    Action<IServiceProvider, MongoDbOptionBuilder> options,
-        //    ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
-        //    ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
-        //    where TContext : MongoDbContext
-        //{
-        //    if (serviceCollection == null)
-        //        throw new InvalidOperationException($"{nameof(serviceCollection)} is null.");
+        private static IWindsorContainer AddMongoDbContext<TContext>(
+            this IWindsorContainer containerBuilder,
+            Action<IKernel, MongoDbOptionBuilder> options,
+            LifestyleType contextLifestyle = LifestyleType.Scoped,
+            LifestyleType optionsLifestyle = LifestyleType.Scoped)
+            where TContext : MongoDbContext
+        {
+            if (containerBuilder == null)
+                throw new InvalidOperationException($"{nameof(containerBuilder)} is null.");
 
-        //    if (contextLifetime == ServiceLifetime.Singleton)
-        //    {
-        //        optionsLifetime = ServiceLifetime.Singleton;
-        //    }
+            if (contextLifestyle == LifestyleType.Singleton)
+            {
+                optionsLifestyle = LifestyleType.Singleton;
+            }
 
-        //    serviceCollection.TryAdd(
-        //        new ServiceDescriptor(
-        //            typeof(MongoDbOptions<TContext>),
-        //            p => MongoDbOptionsFactory<TContext>(p, options),
-        //            optionsLifetime));
+            containerBuilder.Register(
+                Component.For<MongoDbOptions<TContext>>()
+                    .UsingFactoryMethod(kernel => MongoDbOptionsFactory<TContext>(kernel, options))
+                    .LifeStyle.Is(optionsLifestyle),
+                Component.For<TContext>().ImplementedBy<TContext>().LifeStyle.Is(contextLifestyle)            
+            );
+            return containerBuilder;
+        }
 
-        //    serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContext), typeof(TContext), contextLifetime));
+        private static MongoDbOptions<TContext> MongoDbOptionsFactory<TContext>(
+            IKernel kernel,
+            Action<IKernel, MongoDbOptionBuilder> optionsAction)
+            where TContext : MongoDbContext
+        {
+            var builder = new MongoDbOptionBuilder<TContext>();
 
-        //    return serviceCollection;
-        //}
+            optionsAction.Invoke(kernel, builder);
 
-        //private static MongoDbOptions<TContext> MongoDbOptionsFactory<TContext>(
-        //    IServiceProvider applicationServiceProvider,
-        //    Action<IServiceProvider, MongoDbOptionBuilder> optionsAction)
-        //    where TContext : MongoDbContext
-        //{
-        //    var builder = new MongoDbOptionBuilder<TContext>();
-
-        //    optionsAction.Invoke(applicationServiceProvider, builder);
-
-        //    return (MongoDbOptions<TContext>)builder.Options;
-        //}
+            return (MongoDbOptions<TContext>)builder.Options;
+        }
     }
 }

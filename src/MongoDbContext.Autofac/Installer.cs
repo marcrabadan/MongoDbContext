@@ -2,7 +2,7 @@
 using Autofac.Core;
 using System;
 
-namespace MongoDbFramework
+namespace MongoDbFramework.Autofac
 {
     public static class Installer
     {

@@ -1,17 +1,15 @@
-﻿using MongoDbFramework.IntegrationTests.Contexts;
-using MongoDbFramework.IntegrationTests.Enums;
-using MongoDbFramework.IntegrationTests.Fixtures;
-using MongoDbFramework.IntegrationTests.Tests;
 using System;
 using System.Threading.Tasks;
+using MongoDbFramework.IntegrationTests.Contexts;
+using MongoDbFramework.IntegrationTests.Enums;
+using MongoDbFramework.IntegrationTests.Fixtures;
 using Xunit;
 
 namespace MongoDbFramework.IntegrationTests
 {
-    [Trait("Category", "FileOperations")]
-    public class FileOperationTests :
-        SharedFileOperationTests<SocialContext>,
-        IFileOperationTests,
+    [Trait("Category", "Operations")]
+    public class OperationsTests : SharedOperationTests<SocialContext>,
+        IOperationTests,
         IClassFixture<SocialContextFixture<SocialContext>>,
         IClassFixture<AutofacSocialContextFixture<SocialContext>>,
         IClassFixture<CastleWindsorSocialContextFixture<SocialContext>>
@@ -19,8 +17,8 @@ namespace MongoDbFramework.IntegrationTests
         private readonly SocialContextFixture<SocialContext> fixture;
         private readonly AutofacSocialContextFixture<SocialContext> autofacFixture;
         private readonly CastleWindsorSocialContextFixture<SocialContext> castleWindsorFixture;
-
-        public FileOperationTests(
+        
+        public OperationsTests(
             SocialContextFixture<SocialContext> fixture,
             AutofacSocialContextFixture<SocialContext> autofacFixture,
             CastleWindsorSocialContextFixture<SocialContext> castleWindsorFixture)
@@ -30,54 +28,94 @@ namespace MongoDbFramework.IntegrationTests
             this.castleWindsorFixture = castleWindsorFixture ?? throw new ArgumentNullException(nameof(fixture));
         }
 
-        [Theory(DisplayName = "ShouldGetAllFiles")]
+        [Theory(DisplayName = "ShouldAddIndexAndRetrieveIt")]
         [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
         [InlineData(IoCType.Autofac)]
         [InlineData(IoCType.CastleWindsor)]
-        public async Task ShouldGetAllFiles(IoCType ioCType)
+        public async Task ShouldAddIndexAndRetrieveIt(IoCType ioCType)
         {
             this.SetContext(ioCType);
-            await this.GetAllFiles().ConfigureAwait(false);
+            await this.IndexAsync().ConfigureAwait(false);
         }
 
-        [Theory(DisplayName = "ShouldGetByFileName")]
+        [Theory]
         [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
         [InlineData(IoCType.Autofac)]
         [InlineData(IoCType.CastleWindsor)]
-        public async Task ShouldGetByFileName(IoCType ioCType)
+        public async Task ShouldAddItemToDatabase(IoCType ioCType)
         {
             this.SetContext(ioCType);
-            await this.GetByFileName().ConfigureAwait(false);
+            await this.AddAsync().ConfigureAwait(false);
         }
 
-        [Theory(DisplayName = "ShouldRenameFile")]
+        [Theory]
         [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
         [InlineData(IoCType.Autofac)]
         [InlineData(IoCType.CastleWindsor)]
-        public async Task ShouldRenameFile(IoCType ioCType)
+        public async Task ShouldAddRangeItemsToDatabase(IoCType ioCType)
         {
             this.SetContext(ioCType);
-            await this.RenameFile().ConfigureAwait(false);
+            await this.AddRangeAsync().ConfigureAwait(false);
         }
 
-        [Theory(DisplayName = "ShouldUploadAndDeleteFile")]
+        [Theory]
         [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
         [InlineData(IoCType.Autofac)]
         [InlineData(IoCType.CastleWindsor)]
-        public async Task ShouldUploadAndDeleteFile(IoCType ioCType)
+        public async Task ShouldDeleteItemFromDatabase(IoCType ioCType)
         {
             this.SetContext(ioCType);
-            await this.UploadAndDeleteFile().ConfigureAwait(false);
+            await this.DeleteAsync().ConfigureAwait(false);
         }
 
-        [Theory(DisplayName = "ShouldUploadAndGetFileById")]
+        [Theory]
         [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
         [InlineData(IoCType.Autofac)]
         [InlineData(IoCType.CastleWindsor)]
-        public async Task ShouldUploadAndGetFileById(IoCType ioCType)
+        public async Task ShouldGetAllItemsFromDatabase(IoCType ioCType)
         {
             this.SetContext(ioCType);
-            await this.UploadAndGetFileById().ConfigureAwait(false);
+            await this.GetAllAsync().ConfigureAwait(false);
+        }
+
+        [Theory]
+        [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
+        [InlineData(IoCType.Autofac)]
+        [InlineData(IoCType.CastleWindsor)]
+        public async Task ShouldGetFirstOrDefaultItemFromDatabase(IoCType ioCType)
+        {
+            this.SetContext(ioCType);
+            await this.FirstOrDefaultAsync().ConfigureAwait(false);
+        }
+
+        [Theory]
+        [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
+        [InlineData(IoCType.Autofac)]
+        [InlineData(IoCType.CastleWindsor)]
+        public async Task ShouldGetItemsFromDatabase(IoCType ioCType)
+        {
+            this.SetContext(ioCType);
+            await this.GetAsync().ConfigureAwait(false);
+        }
+
+        [Theory]
+        [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
+        [InlineData(IoCType.Autofac)]
+        [InlineData(IoCType.CastleWindsor)]
+        public async Task ShouldMapReduceOperation(IoCType ioCType)
+        {
+            this.SetContext(ioCType);
+            await this.MapReduceAsync().ConfigureAwait(false);
+        }
+
+        [Theory]
+        [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
+        [InlineData(IoCType.Autofac)]
+        [InlineData(IoCType.CastleWindsor)]
+        public async Task ShouldUpdateItemFromDatabase(IoCType ioCType)
+        {
+            this.SetContext(ioCType);
+            await this.UpdateAsync().ConfigureAwait(false);
         }
 
         private void SetContext(IoCType ioCType)

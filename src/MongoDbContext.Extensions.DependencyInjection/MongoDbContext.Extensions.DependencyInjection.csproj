@@ -3,6 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>MongoDbContext.Extensions.DependencyInjection</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Marc Rabadan Fuertes</Authors>
+    <Company>Marc Rabadan Fuertes</Company>
+    <Product>MongoDbContext</Product>
+    <Description>MongoDbContext enables .NET developers to work with a MongoDb database using .NET objects.</Description>
+    <Copyright>Marc Rabadan Fuertes 2018</Copyright>
+    <PackageProjectUrl>https://github.com/marcrabadan/MongoDbContext</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/marcrabadan/MongoDbContext</RepositoryUrl>
+    <PackageTags>MongoDbFramework, DbContext, mongodb, framework, persistence, infrastructure, azure cosmos, cosmos, file storage, storage, files, entity, documents</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

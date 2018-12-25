@@ -1,9 +1,9 @@
 ﻿using Autofac;
-using System;
+using MongoDbFramework.Autofac;
 
 namespace MongoDbFramework.IntegrationTests.Fixtures
 {
-    public class AutofacSocialContextFixture<TContext> : IDisposable where TContext : MongoDbContext
+    public class AutofacSocialContextFixture<TContext> where TContext : MongoDbContext
     {
         public AutofacSocialContextFixture()
         {

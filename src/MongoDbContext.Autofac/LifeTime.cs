@@ -1,4 +1,4 @@
-﻿namespace MongoDbFramework
+﻿namespace MongoDbFramework.Autofac
 {
     public enum LifeTime
     {

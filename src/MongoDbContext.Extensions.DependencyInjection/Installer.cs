@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 
-namespace MongoDbFramework
+namespace MongoDbFramework.Extensions.DependencyInjection
 {
     public static class Installer
     {
