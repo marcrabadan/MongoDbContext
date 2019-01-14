@@ -1,6 +1,8 @@
 ﻿using Castle.Core;
 using Castle.Windsor;
+using MongoDB.Driver;
 using MongoDbFramework.CastleWindsor;
+using System.Collections.Generic;
 
 namespace MongoDbFramework.IntegrationTests.Fixtures
 {
@@ -11,18 +13,23 @@ namespace MongoDbFramework.IntegrationTests.Fixtures
             var container = new WindsorContainer();
             container.AddMongoDbContext<TContext>(options =>
             {
-                options.ConnectionString("mongodb://localhost:27017");
+                options.Configure(c =>
+                {
+                    options.ConnectionString("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs1&readPreference=primary");
+                });
             }, LifestyleType.Transient, LifestyleType.Singleton);
 
-            Context = container.Resolve<TContext>();
+            this.Container = container;
+            this.Context = this.Container.Resolve<TContext>();
         }
 
+        public IWindsorContainer Container { get; protected set; }
         public TContext Context { get; protected set; }
 
         public void Dispose()
         {
-            if (Context != null)
-                Context = null;
+            this.Container?.Dispose();
+            this.Context = null;
         }
     }
 }

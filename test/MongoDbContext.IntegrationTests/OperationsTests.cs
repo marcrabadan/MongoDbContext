@@ -1,8 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using MongoDbFramework.IntegrationTests.Contexts;
+using MongoDbFramework.IntegrationTests.Documents;
 using MongoDbFramework.IntegrationTests.Enums;
 using MongoDbFramework.IntegrationTests.Fixtures;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace MongoDbFramework.IntegrationTests
@@ -17,25 +18,25 @@ namespace MongoDbFramework.IntegrationTests
         private readonly SocialContextFixture<SocialContext> fixture;
         private readonly AutofacSocialContextFixture<SocialContext> autofacFixture;
         private readonly CastleWindsorSocialContextFixture<SocialContext> castleWindsorFixture;
-        
+
         public OperationsTests(
             SocialContextFixture<SocialContext> fixture,
             AutofacSocialContextFixture<SocialContext> autofacFixture,
             CastleWindsorSocialContextFixture<SocialContext> castleWindsorFixture)
+            : base(fixture, autofacFixture, castleWindsorFixture)
         {
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
             this.autofacFixture = autofacFixture ?? throw new ArgumentNullException(nameof(fixture));
-            this.castleWindsorFixture = castleWindsorFixture ?? throw new ArgumentNullException(nameof(fixture));
+            this.castleWindsorFixture = castleWindsorFixture ?? throw new ArgumentNullException(nameof(fixture));            
         }
-
+        
         [Theory(DisplayName = "ShouldAddIndexAndRetrieveIt")]
         [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
         [InlineData(IoCType.Autofac)]
         [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldAddIndexAndRetrieveIt(IoCType ioCType)
         {
-            this.SetContext(ioCType);
-            await this.IndexAsync().ConfigureAwait(false);
+            await this.IndexAsync(ioCType).ConfigureAwait(false);
         }
 
         [Theory]
@@ -44,8 +45,7 @@ namespace MongoDbFramework.IntegrationTests
         [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldAddItemToDatabase(IoCType ioCType)
         {
-            this.SetContext(ioCType);
-            await this.AddAsync().ConfigureAwait(false);
+            await this.AddAsync(ioCType).ConfigureAwait(false);
         }
 
         [Theory]
@@ -54,8 +54,7 @@ namespace MongoDbFramework.IntegrationTests
         [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldAddRangeItemsToDatabase(IoCType ioCType)
         {
-            this.SetContext(ioCType);
-            await this.AddRangeAsync().ConfigureAwait(false);
+            await this.AddRangeAsync(ioCType).ConfigureAwait(false);
         }
 
         [Theory]
@@ -64,8 +63,7 @@ namespace MongoDbFramework.IntegrationTests
         [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldDeleteItemFromDatabase(IoCType ioCType)
         {
-            this.SetContext(ioCType);
-            await this.DeleteAsync().ConfigureAwait(false);
+            await this.DeleteAsync(ioCType).ConfigureAwait(false);
         }
 
         [Theory]
@@ -74,8 +72,7 @@ namespace MongoDbFramework.IntegrationTests
         [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldGetAllItemsFromDatabase(IoCType ioCType)
         {
-            this.SetContext(ioCType);
-            await this.GetAllAsync().ConfigureAwait(false);
+            await this.GetAllAsync(ioCType).ConfigureAwait(false);
         }
 
         [Theory]
@@ -84,8 +81,7 @@ namespace MongoDbFramework.IntegrationTests
         [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldGetFirstOrDefaultItemFromDatabase(IoCType ioCType)
         {
-            this.SetContext(ioCType);
-            await this.FirstOrDefaultAsync().ConfigureAwait(false);
+            await this.FirstOrDefaultAsync(ioCType).ConfigureAwait(false);
         }
 
         [Theory]
@@ -94,8 +90,7 @@ namespace MongoDbFramework.IntegrationTests
         [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldGetItemsFromDatabase(IoCType ioCType)
         {
-            this.SetContext(ioCType);
-            await this.GetAsync().ConfigureAwait(false);
+            await this.GetAsync(ioCType).ConfigureAwait(false);
         }
 
         [Theory]
@@ -104,8 +99,7 @@ namespace MongoDbFramework.IntegrationTests
         [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldMapReduceOperation(IoCType ioCType)
         {
-            this.SetContext(ioCType);
-            await this.MapReduceAsync().ConfigureAwait(false);
+            await this.MapReduceAsync(ioCType).ConfigureAwait(false);
         }
 
         [Theory]
@@ -114,24 +108,7 @@ namespace MongoDbFramework.IntegrationTests
         [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldUpdateItemFromDatabase(IoCType ioCType)
         {
-            this.SetContext(ioCType);
-            await this.UpdateAsync().ConfigureAwait(false);
-        }
-
-        private void SetContext(IoCType ioCType)
-        {
-            switch (ioCType)
-            {
-                case IoCType.MicrosoftExtensionsDependencyInjection:
-                    this.Context = this.fixture.Context;
-                    break;
-                case IoCType.Autofac:
-                    this.Context = this.autofacFixture.Context;
-                    break;
-                case IoCType.CastleWindsor:
-                    this.Context = this.castleWindsorFixture.Context;
-                    break;
-            }
+            await this.UpdateAsync(ioCType).ConfigureAwait(false);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MongoDbFramework.IntegrationTests.Documents;
+﻿using MongoDB.Driver;
+using MongoDbFramework.IntegrationTests.Documents;
 
 namespace MongoDbFramework.IntegrationTests.Contexts
 {
