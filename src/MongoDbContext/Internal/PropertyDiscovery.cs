@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace MongoDbFramework
 {
-    internal class PropertyDiscovery<TFrom> where TFrom : class
+    public sealed class PropertyDiscovery<TFrom> where TFrom : class
     {
         private static readonly ConcurrentDictionary<Type, Dictionary<Type, Action<TFrom>>> _objectInitializers = new ConcurrentDictionary<Type, Dictionary<Type, Action<TFrom>>>();
         private static readonly List<string> _propertyProcessed = new List<string>();

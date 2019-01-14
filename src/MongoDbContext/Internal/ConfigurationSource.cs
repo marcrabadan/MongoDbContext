@@ -3,7 +3,7 @@ using System;
 
 namespace MongoDbFramework
 {
-    public class ConfigurationSource<TDocument> : ConfigurationSource where TDocument : IDocument
+    public sealed class ConfigurationSource<TDocument> : ConfigurationSource where TDocument : IDocument
     {
         public ConfigurationSource(MongoClient client) : base(client)
         {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MongoDbFramework
 {
-    public class FileStorageOptions<T> : FileStorageOptions where T : FileDocument
+    public sealed class FileStorageOptions<T> : FileStorageOptions where T : FileDocument
     {
         public Type Type => typeof(T);
     }
