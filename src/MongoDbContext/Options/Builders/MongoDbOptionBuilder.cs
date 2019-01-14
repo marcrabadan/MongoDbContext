@@ -26,7 +26,10 @@ namespace MongoDbFramework
                 _mongoDbOption.Settings = _mongoClientSettings;
             }
             else
-                _mongoDbOption.ConnectionString = connectionString;
+            {
+                _mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
+                _mongoDbOption.Settings = _mongoClientSettings;
+            }
         }
 
         public void Configure(Action<MongoClientSettings> builder)

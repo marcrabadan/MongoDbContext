@@ -21,7 +21,7 @@ namespace MongoDbFramework
                 ValidateOptions();
 
                 if (_mongoClient == null)
-                    _mongoClient = !string.IsNullOrEmpty(Options.ConnectionString) ? new MongoClient(Options.ConnectionString) : new MongoClient(Options.Settings);
+                    _mongoClient = new MongoClient(Options.Settings);
                   
                 return _mongoClient;
             }
@@ -36,7 +36,7 @@ namespace MongoDbFramework
         
         private void ValidateOptions()
         {
-            if (string.IsNullOrEmpty(Options.ConnectionString) && Options.Settings == default(MongoClientSettings))
+            if (Options.Settings == default(MongoClientSettings))
                 throw new InvalidOperationException("Invalid MongoDbOptions configuration for this context, at least one to have that informed.");
         }
     }

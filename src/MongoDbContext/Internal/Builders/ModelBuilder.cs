@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace MongoDbFramework
 {
-    public class ModelBuilder
+    public sealed class ModelBuilder
     {
         private readonly Dictionary<Type, object> _modelConfig = new Dictionary<Type, object>();
         internal MongoClient Client { get; }
@@ -31,7 +31,11 @@ namespace MongoDbFramework
                 DatabaseName = modelBuilder.DatabaseName,
                 CollectionName = modelBuilder.CollectionName,
                 Indices = modelBuilder.Indexes,
-                FileStorageOptions = modelBuilder.FileStorageOptions
+                FileStorageOptions = modelBuilder.FileStorageOptions,
+                FindOptions = modelBuilder.FindOptions,
+                DatabaseBehavior = modelBuilder.DatabaseBehavior,
+                SessionBehavior = modelBuilder.SessionBehavior,
+                TransactionBehavior = modelBuilder.TransactionBehavior,
             };
             config.Model = model;
             if (!_modelConfig.ContainsKey(typeof(TDocument)))

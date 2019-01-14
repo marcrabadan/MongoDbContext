@@ -106,5 +106,93 @@ namespace MongoDbFramework.UnitTests
             Assert.True(configurationSourceTyped.Model.Indices.Any());
             Assert.True(configurationSourceTyped.Model.Indices.Count == 2);
         }
+
+        [Fact]
+        public void ApplyDatabaseBehavior()
+        {
+            var mongoClient = new MongoClient();
+            var modelBuilder = new ModelBuilder(mongoClient);
+            var readPreferenceExpected = ReadPreference.Primary;
+            var readConcernExpected = ReadConcern.Majority;
+            var writeConcernExpected = WriteConcern.WMajority;
+            
+            modelBuilder
+                .Document<CustomerDocument>()
+                .WithDatabaseBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Majority);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                });
+
+            Assert.True(modelBuilder.Models.ContainsKey(typeof(CustomerDocument)));
+            Assert.True(modelBuilder.Models.TryGetValue(typeof(CustomerDocument), out var configurationSource));
+            Assert.True(configurationSource is ConfigurationSource<CustomerDocument>);
+            var configurationSourceTyped = (ConfigurationSource<CustomerDocument>)configurationSource;
+
+            var databaseBehavior = configurationSourceTyped.Model.DatabaseBehavior;
+            Assert.True(databaseBehavior.ReadPreference == readPreferenceExpected);
+            Assert.True(databaseBehavior.ReadConcern == readConcernExpected);
+            Assert.True(databaseBehavior.WriteConcern == writeConcernExpected);
+        }
+
+        [Fact]
+        public void ApplyTransactionBehavior()
+        {
+            var mongoClient = new MongoClient();
+            var modelBuilder = new ModelBuilder(mongoClient);
+            var readPreferenceExpected = ReadPreference.Primary;
+            var readConcernExpected = ReadConcern.Majority;
+            var writeConcernExpected = WriteConcern.WMajority;
+
+            modelBuilder
+                .Document<CustomerDocument>()
+                .WithTransactionBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Majority);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                });
+
+            Assert.True(modelBuilder.Models.ContainsKey(typeof(CustomerDocument)));
+            Assert.True(modelBuilder.Models.TryGetValue(typeof(CustomerDocument), out var configurationSource));
+            Assert.True(configurationSource is ConfigurationSource<CustomerDocument>);
+            var configurationSourceTyped = (ConfigurationSource<CustomerDocument>)configurationSource;
+
+            var transactionBehavior = configurationSourceTyped.Model.TransactionBehavior;
+            Assert.True(transactionBehavior.ReadPreference == readPreferenceExpected);
+            Assert.True(transactionBehavior.ReadConcern == readConcernExpected);
+            Assert.True(transactionBehavior.WriteConcern == writeConcernExpected);
+        }
+
+        [Fact]
+        public void ApplySessionBehavior()
+        {
+            var mongoClient = new MongoClient();
+            var modelBuilder = new ModelBuilder(mongoClient);
+            var readPreferenceExpected = ReadPreference.Primary;
+            var readConcernExpected = ReadConcern.Majority;
+            var writeConcernExpected = WriteConcern.WMajority;
+
+            modelBuilder
+                .Document<CustomerDocument>()
+                .WithSessionBehavior(c =>
+                {
+                    c.EnableCasualConsitency();
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Majority);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                });
+
+            Assert.True(modelBuilder.Models.ContainsKey(typeof(CustomerDocument)));
+            Assert.True(modelBuilder.Models.TryGetValue(typeof(CustomerDocument), out var configurationSource));
+            Assert.True(configurationSource is ConfigurationSource<CustomerDocument>);
+            var configurationSourceTyped = (ConfigurationSource<CustomerDocument>)configurationSource;
+
+            var sessionBehavior = configurationSourceTyped.Model.SessionBehavior;
+            Assert.True(sessionBehavior.ReadPreference == readPreferenceExpected);
+            Assert.True(sessionBehavior.ReadConcern == readConcernExpected);
+            Assert.True(sessionBehavior.WriteConcern == writeConcernExpected);
+        }
     }
 }

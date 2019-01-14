@@ -12,7 +12,12 @@ namespace MongoDbFramework
             {
                 try
                 {
-                    var indexModel = new CreateIndexModel<TDocument>(index.Item1, index.Item2);
+                    var options = index.Item2;
+                    options.Background = true;
+                    options.Sparse = true;
+                    
+                    var indexModel = new CreateIndexModel<TDocument>(index.Item1, options);
+                    
                     indexManager.CreateOne(indexModel);
                 }
                 catch (Exception)
