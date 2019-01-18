@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using MongoDbFramework.Extensions.DependencyInjection;
+using MongoDB.Driver;
+using System.Collections.Generic;
 
 namespace MongoDbFramework.IntegrationTests.Fixtures
 {
@@ -11,19 +13,23 @@ namespace MongoDbFramework.IntegrationTests.Fixtures
             var services = new ServiceCollection();
             services.AddMongoDbContext<TContext>(options =>
             {
-                options.ConnectionString("mongodb://localhost:27017");
+                options.Configure(c =>
+                {
+                    options.ConnectionString("mongodb://localhost:27017");
+                });
             }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
 
-            var serviceProvider = services.BuildServiceProvider();
-            Context = serviceProvider.GetService<TContext>();
+            this.Container = services.BuildServiceProvider();
+            this.Context = this.Container.GetService<TContext>();
         }
 
+        public IServiceProvider Container { get; protected set; }
         public TContext Context { get; protected set; }
 
         public void Dispose()
         {
-            if (Context != null)
-                Context = null;
+            this.Container = null;
+            this.Context = null;
         }
     }
 }

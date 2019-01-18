@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MongoDbFramework
 {
-    public class FileDocumentTypeBuilder<T> where T : FileDocument
+    public sealed class FileDocumentTypeBuilder<T> where T : FileDocument
     {
         private Action<FileDocumentTypeBuilder<T>> _apply;
 

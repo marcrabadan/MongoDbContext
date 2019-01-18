@@ -13,6 +13,7 @@ namespace MongoDbFramework
                 try
                 {
                     var indexModel = new CreateIndexModel<TDocument>(index.Item1, index.Item2);
+                    
                     indexManager.CreateOne(indexModel);
                 }
                 catch (Exception)

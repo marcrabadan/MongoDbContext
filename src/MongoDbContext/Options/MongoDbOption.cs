@@ -5,14 +5,12 @@ namespace MongoDbFramework
 {
     public class MongoDbOption
     {
-        public string ConnectionString { get; set; }
-
         public MongoClientSettings Settings { get; set; }
         
         internal MongoClientSettings Build()
         {
             if (Settings == null)
-                throw new InvalidOperationException($"Settings property at ElasticSearchOption is mandatory.");
+                throw new InvalidOperationException($"Settings property at MongoDbOption is mandatory.");
 
             return Settings;
         }
