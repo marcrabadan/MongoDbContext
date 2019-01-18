@@ -9,11 +9,11 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/marcrabadan/MongoDbContext</PackageProjectUrl>
     <RepositoryUrl>https://github.com/marcrabadan/MongoDbContext</RepositoryUrl>
-    <Version>4.0.2.2-beta</Version>
+    <Version>4.0.2</Version>
     <AssemblyName>MongoDbFramework</AssemblyName>
     <RootNamespace>MongoDbFramework</RootNamespace>
-    <FileVersion>4.0.2.2</FileVersion>
-    <AssemblyVersion>4.0.2.2</AssemblyVersion>
+    <FileVersion>4.0.2</FileVersion>
+    <AssemblyVersion>4.0.2</AssemblyVersion>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>MongoDbFramework, DbContext, mongodb, framework, persistence, infrastructure, azure cosmos, cosmos, file storage, storage, files, entity, documents</PackageTags>
     <PackageId>MongoDbContext</PackageId>
