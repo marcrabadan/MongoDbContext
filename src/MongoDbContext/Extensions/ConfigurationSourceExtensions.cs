@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using Inflector;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -38,18 +39,14 @@ namespace MongoDbFramework
         public static MongoDB.Driver.IMongoCollection<TDocument> ToMongoCollection<TDocument>(this ConfigurationSource<TDocument> configurationSource, IMongoDatabase mongoDatabase) where TDocument : IDocument
         {
             MongoDB.Driver.IMongoCollection<TDocument> collection;
-            if (configurationSource.Model != default(Model<TDocument>))
-            {
-                collection = mongoDatabase
-                    .GetCollection<TDocument>(configurationSource.Model.CollectionName);
-                
-                //collection.Indexes.SetIndices(configurationSource.Model?.Indices);
-            }
-            else
-            {
-                collection = mongoDatabase
-                    .GetCollection<TDocument>(typeof(TDocument).Name.ToLower().Pluralize());
-            }
+
+            var collectionName = configurationSource.Model != default(Model<TDocument>)
+                ? configurationSource.Model.CollectionName
+                : typeof(TDocument).Name.ToLower().Pluralize();
+
+            collection = mongoDatabase.GetOrCreateCollection<TDocument>(collectionName);
+            
+            collection.Indexes.SetIndices(configurationSource.Model?.Indices);
 
             return collection;
         }
@@ -73,6 +70,16 @@ namespace MongoDbFramework
             }
 
             return new GridFSBucket(database, options);
-        }        
+        }
+
+        private static MongoDB.Driver.IMongoCollection<TDocument> GetOrCreateCollection<TDocument>(this IMongoDatabase database, string collectionName) where TDocument : IDocument
+        {
+            var filter = new BsonDocument("name", collectionName);
+            var exists = database.ListCollectionNames(new ListCollectionNamesOptions {Filter = filter}).FirstOrDefault() != null;
+            if (!exists)
+                database.CreateCollection(collectionName);
+            
+            return database.GetCollection<TDocument>(collectionName);
+        }
     }
 }

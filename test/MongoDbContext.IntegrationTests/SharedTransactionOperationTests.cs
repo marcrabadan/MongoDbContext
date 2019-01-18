@@ -19,6 +19,13 @@ namespace MongoDbFramework.IntegrationTests
             this.ioCResolver = IoCResolver.Instance(Tuple.Create(fixture.Container, castleWindsorFixture.Container, autofacFixture.Container));
         }
 
+        public async Task CleanAsync(IoCType ioCType)
+        {
+            this.SetTestContext(ioCType);
+
+            await this.tweetCollection.DeleteManyAsync(c => true).ConfigureAwait(false);
+        }
+
         public async Task ShouldCommitOperationsAsync(IoCType ioCType)
         {
             this.SetTestContext(ioCType);
@@ -34,6 +41,8 @@ namespace MongoDbFramework.IntegrationTests
             {
                 try
                 {
+                    session.StartTransaction();
+
                     await this.tweetCollection.AddAsync(tweet).ConfigureAwait(false);
 
                     var findTweet = await this.tweetCollection.FindAsync(id).ConfigureAwait(false);
@@ -49,16 +58,14 @@ namespace MongoDbFramework.IntegrationTests
 
                     await session.CommitTransactionAsync().ConfigureAwait(false);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     await session.AbortTransactionAsync().ConfigureAwait(false);
-                }                
+                }  
             }
 
             tweet = await this.tweetCollection.FindAsync(id).ConfigureAwait(false);
             tweet.Should().NotBeNull();
-
-            await this.tweetCollection.DeleteOneAsync(c => c.Id == tweet.Id).ConfigureAwait(false);
         }
 
         public async Task ShouldRollbackOperationsAsync(IoCType ioCType)

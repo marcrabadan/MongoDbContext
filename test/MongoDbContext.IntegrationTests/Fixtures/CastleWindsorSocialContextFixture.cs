@@ -15,7 +15,7 @@ namespace MongoDbFramework.IntegrationTests.Fixtures
             {
                 options.Configure(c =>
                 {
-                    options.ConnectionString("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs1&readPreference=primary");
+                    options.ConnectionString("mongodb://localhost:27017");
                 });
             }, LifestyleType.Transient, LifestyleType.Singleton);
 

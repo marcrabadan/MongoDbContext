@@ -13,7 +13,8 @@ namespace MongoDbFramework.IntegrationTests
         IOperationTests,
         IClassFixture<SocialContextFixture<SocialContext>>,
         IClassFixture<AutofacSocialContextFixture<SocialContext>>,
-        IClassFixture<CastleWindsorSocialContextFixture<SocialContext>>
+        IClassFixture<CastleWindsorSocialContextFixture<SocialContext>>,
+        IDisposable
     {
         private readonly SocialContextFixture<SocialContext> fixture;
         private readonly AutofacSocialContextFixture<SocialContext> autofacFixture;
@@ -109,6 +110,13 @@ namespace MongoDbFramework.IntegrationTests
         public async Task ShouldUpdateItemFromDatabase(IoCType ioCType)
         {
             await this.UpdateAsync(ioCType).ConfigureAwait(false);
+        }
+
+        public async void Dispose()
+        {
+            await this.CleanAsync(IoCType.Autofac).ConfigureAwait(false);
+            await this.CleanAsync(IoCType.CastleWindsor).ConfigureAwait(false);
+            await this.CleanAsync(IoCType.MicrosoftExtensionsDependencyInjection).ConfigureAwait(false);
         }
     }
 }

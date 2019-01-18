@@ -171,8 +171,8 @@ namespace MongoDbFramework
                 DatabaseBehavior = new Behavior
                 {
                     ReadPreference = ReadPreference.Primary,
-                    ReadConcern = ReadConcern.Linearizable,
-                    WriteConcern = new WriteConcern(WriteConcern.WMode.Majority, TimeSpan.FromMilliseconds(1000))
+                    ReadConcern = ReadConcern.Default,
+                    WriteConcern = WriteConcern.WMajority
                 };
             }
             if (_isDefaultSessionBehavior)
@@ -181,8 +181,8 @@ namespace MongoDbFramework
                 {
                     CasualConsistency = true,
                     ReadPreference = ReadPreference.Primary,
-                    ReadConcern = ReadConcern.Linearizable,
-                    WriteConcern = new WriteConcern(WriteConcern.WMode.Majority, TimeSpan.FromMilliseconds(1000))
+                    ReadConcern = ReadConcern.Default,
+                    WriteConcern = WriteConcern.WMajority
                 };
             }
             if (_isDefaultTransactionBehavior)
@@ -190,8 +190,8 @@ namespace MongoDbFramework
                 TransactionBehavior = new Behavior
                 {
                     ReadPreference = ReadPreference.Primary,
-                    ReadConcern = ReadConcern.Linearizable,
-                    WriteConcern = new WriteConcern(WriteConcern.WMode.Majority, TimeSpan.FromMilliseconds(1000))
+                    ReadConcern = ReadConcern.Default,
+                    WriteConcern = WriteConcern.WMajority
                 };
             }
             

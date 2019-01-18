@@ -12,11 +12,7 @@ namespace MongoDbFramework
             {
                 try
                 {
-                    var options = index.Item2;
-                    options.Background = true;
-                    options.Sparse = true;
-                    
-                    var indexModel = new CreateIndexModel<TDocument>(index.Item1, options);
+                    var indexModel = new CreateIndexModel<TDocument>(index.Item1, index.Item2);
                     
                     indexManager.CreateOne(indexModel);
                 }

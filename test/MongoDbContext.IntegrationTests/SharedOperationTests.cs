@@ -21,9 +21,17 @@ namespace MongoDbFramework.IntegrationTests
         private MongoCollection<Tweet> tweetCollection;
         private MongoCollection<Movie> movieCollection;
 
-        public SharedOperationTests(SocialContextFixture<TContext> fixture, AutofacSocialContextFixture<TContext> autofacFixture, CastleWindsorSocialContextFixture<TContext> castleWindsorFixture)
+        protected SharedOperationTests(SocialContextFixture<TContext> fixture, AutofacSocialContextFixture<TContext> autofacFixture, CastleWindsorSocialContextFixture<TContext> castleWindsorFixture)
         {
             this.ioCResolver = IoCResolver.Instance(Tuple.Create(fixture.Container, castleWindsorFixture.Container, autofacFixture.Container));            
+        }
+
+        public async Task CleanAsync(IoCType ioCType)
+        {
+            this.SetTestContext(ioCType);
+            
+            await this.tweetCollection.DeleteManyAsync(c => true).ConfigureAwait(false);
+            await this.movieCollection.DeleteManyAsync(c => true).ConfigureAwait(false);
         }
 
         public async Task AddAsync(IoCType ioCType)
@@ -39,12 +47,6 @@ namespace MongoDbFramework.IntegrationTests
 
             Assert.NotNull(added);
             Assert.True(added.Id != Guid.Empty);
-
-            await this.tweetCollection.DeleteOneAsync(c => c.Id == added.Id).ConfigureAwait(false);
-
-            var find = await this.tweetCollection.FindAsync(added.Id).ConfigureAwait(false);
-
-            Assert.Null(find);
         }
         
         public async Task UpdateAsync(IoCType ioCType)
@@ -68,12 +70,6 @@ namespace MongoDbFramework.IntegrationTests
 
             Assert.True(findUpdated.Id == added.Id);
             Assert.True(findUpdated.Message == "Hi All!!!");
-
-            await this.tweetCollection.DeleteOneAsync(c => c.Id == added.Id).ConfigureAwait(false);
-
-            var find = await this.tweetCollection.FindAsync(added.Id).ConfigureAwait(false);
-
-            Assert.Null(find);
         }
         
         public async Task DeleteAsync(IoCType ioCType)
@@ -123,16 +119,6 @@ namespace MongoDbFramework.IntegrationTests
             var data = query.ToList();
 
             Assert.NotEmpty(data);
-
-            foreach (var item in data)
-            {
-                await this.tweetCollection.DeleteOneAsync(c => c.Id == item.Id).ConfigureAwait(false);
-            }
-
-            query = await this.tweetCollection.GetAllAsync(1).ConfigureAwait(false);
-            data = query.ToList();
-
-            Assert.Empty(data);
         }
         
         public async Task GetAsync(IoCType ioCType)
@@ -162,19 +148,6 @@ namespace MongoDbFramework.IntegrationTests
 
             Assert.NotEmpty(data);
             Assert.True(data.Count == 1);
-
-            var query = await this.tweetCollection.GetAllAsync(1).ConfigureAwait(false);
-            data = query.ToList();
-
-            foreach (var item in data)
-            {
-                await this.tweetCollection.DeleteOneAsync(c => c.Id == item.Id).ConfigureAwait(false);
-            }
-
-            query = await this.tweetCollection.GetAllAsync(1).ConfigureAwait(false);
-            data = query.ToList();
-
-            Assert.Empty(data);
         }
         
         public async Task FirstOrDefaultAsync(IoCType ioCType)
@@ -201,19 +174,6 @@ namespace MongoDbFramework.IntegrationTests
             }
 
             Assert.NotNull(await this.tweetCollection.FirstOrDefaultAsync(c => c.Message == "Message1").ConfigureAwait(false));
-
-            var query = await this.tweetCollection.GetAllAsync(1).ConfigureAwait(false);
-            var data = query.ToList();
-
-            foreach (var item in data)
-            {
-                await this.tweetCollection.DeleteOneAsync(c => c.Id == item.Id).ConfigureAwait(false);
-            }
-
-            query = await this.tweetCollection.GetAllAsync(1).ConfigureAwait(false);
-            data = query.ToList();
-
-            Assert.Empty(data);
         }
         
         public async Task AddRangeAsync(IoCType ioCType)
@@ -237,15 +197,6 @@ namespace MongoDbFramework.IntegrationTests
 
             Assert.NotEmpty(data);
             Assert.True(data.Count == tweets.Count);
-
-            foreach (var item in data)
-            {
-                await this.tweetCollection.DeleteOneAsync(c => c.Id == item.Id).ConfigureAwait(false);
-            }
-
-            data = await this.tweetCollection.GetAllAsync(1).ConfigureAwait(false);
-
-            Assert.Empty(data);
         }
         
         public async Task IndexAsync(IoCType ioCType)
@@ -281,8 +232,6 @@ namespace MongoDbFramework.IntegrationTests
                     });
                 }
             }
-
-            await this.movieCollection.DeleteManyAsync(c => data.Any(x => x.Id == c.Id)).ConfigureAwait(false);
         }
         
         public async Task MapReduceAsync(IoCType ioCType)
@@ -314,9 +263,8 @@ namespace MongoDbFramework.IntegrationTests
                 }
             };
 
-            var moviesList = await this.movieCollection.GetAllAsync(1).ConfigureAwait(false);
-            await this.movieCollection.DeleteManyAsync(c => moviesList.Any(x => x.Id == c.Id)).ConfigureAwait(false);
-
+            var data = await this.movieCollection.GetAllAsync(1).ConfigureAwait(false);
+            await this.movieCollection.DeleteManyByIdAsync(data).ConfigureAwait(false);
             await this.movieCollection.AddRangeAsync(movies).ConfigureAwait(false);
 
             BsonJavaScript map = @"
@@ -355,9 +303,9 @@ namespace MongoDbFramework.IntegrationTests
                 var expectedMovie = expected.FirstOrDefault(c => c.Id == item.Id);
                 if (expectedMovie != null)
                 {
-                    Assert.True(expectedMovie.value.Count == item.value.Count);
-                    Assert.True(expectedMovie.value.TotalMinutes == item.value.TotalMinutes);
-                    Assert.True(expectedMovie.value.Average == item.value.Average);
+                    Assert.True(expectedMovie.value.Count <= item.value.Count);
+                    Assert.True(expectedMovie.value.TotalMinutes <= item.value.TotalMinutes);
+                    Assert.True(expectedMovie.value.Average <= item.value.Average);
                 }
             }
         }
