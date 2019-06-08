@@ -23,7 +23,8 @@ namespace MongoDbFramework.IntegrationTests
         {
             this.SetTestContext(ioCType);
 
-            await this.tweetCollection.DeleteManyAsync(c => true).ConfigureAwait(false);
+            var dbName = this.tweetCollection.Database.DatabaseNamespace.DatabaseName;
+            await this.context.MongoClient.DropDatabaseAsync(dbName).ConfigureAwait(false);
         }
 
         public async Task ShouldCommitOperationsAsync(IoCType ioCType)
@@ -61,6 +62,7 @@ namespace MongoDbFramework.IntegrationTests
                 catch (Exception ex)
                 {
                     await session.AbortTransactionAsync().ConfigureAwait(false);
+                    throw;
                 }  
             }
 
@@ -101,6 +103,7 @@ namespace MongoDbFramework.IntegrationTests
                 catch (Exception)
                 {
                     await session.AbortTransactionAsync().ConfigureAwait(false);
+                    throw;
                 }
             }
 

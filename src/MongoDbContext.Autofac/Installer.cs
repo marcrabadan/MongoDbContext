@@ -6,7 +6,7 @@ namespace MongoDbFramework.Autofac
 {
     public static class Installer
     {
-        public static void AddMongoDbContext<TContext>(
+        public static ContainerBuilder AddMongoDbContext<TContext>(
                this ContainerBuilder containerBuilder,
                Action<MongoDbOptionBuilder> options,
                LifeTime contextLifetime = LifeTime.Scoped,
@@ -14,6 +14,7 @@ namespace MongoDbFramework.Autofac
                where TContext : MongoDbContext
         {
             containerBuilder.AddMongoDbContext<TContext>((p, b) => options.Invoke(b), contextLifetime, optionsLifetime);
+            return containerBuilder;
         }
 
         private static ContainerBuilder AddMongoDbContext<TContext>(

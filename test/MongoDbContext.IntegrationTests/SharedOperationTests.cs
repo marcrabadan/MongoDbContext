@@ -29,9 +29,9 @@ namespace MongoDbFramework.IntegrationTests
         public async Task CleanAsync(IoCType ioCType)
         {
             this.SetTestContext(ioCType);
-            
-            await this.tweetCollection.DeleteManyAsync(c => true).ConfigureAwait(false);
-            await this.movieCollection.DeleteManyAsync(c => true).ConfigureAwait(false);
+
+            var dbName = this.tweetCollection.Database.DatabaseNamespace.DatabaseName;
+            await this.context.MongoClient.DropDatabaseAsync(dbName);
         }
 
         public async Task AddAsync(IoCType ioCType)
@@ -312,7 +312,7 @@ namespace MongoDbFramework.IntegrationTests
 
         private void SetTestContext(IoCType ioCType)
         {
-            this.context = this.ioCResolver.Resolve<TContext>(ioCType);
+            this.context = this.ioCResolver.Resolve<TContext>(ioCType);            
             this.tweetCollection = this.context.Collection<Tweet>();
             this.movieCollection = this.context.Collection<Movie>();
         }

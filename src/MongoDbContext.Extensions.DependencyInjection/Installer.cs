@@ -6,7 +6,7 @@ namespace MongoDbFramework.Extensions.DependencyInjection
 {
     public static class Installer
     {
-        public static void AddMongoDbContext<TContext>(
+        public static IServiceCollection AddMongoDbContext<TContext>(
                this IServiceCollection services,
                Action<MongoDbOptionBuilder> options,
                ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
@@ -14,6 +14,7 @@ namespace MongoDbFramework.Extensions.DependencyInjection
                where TContext : MongoDbContext
         {
             services.AddMongoDbContext<TContext>((p, b) => options.Invoke(b), contextLifetime, optionsLifetime);
+            return services;
         }
 
         private static IServiceCollection AddMongoDbContext<TContext>(

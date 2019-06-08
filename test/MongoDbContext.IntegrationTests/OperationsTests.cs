@@ -114,8 +114,6 @@ namespace MongoDbFramework.IntegrationTests
 
         public async void Dispose()
         {
-            await this.CleanAsync(IoCType.Autofac).ConfigureAwait(false);
-            await this.CleanAsync(IoCType.CastleWindsor).ConfigureAwait(false);
             await this.CleanAsync(IoCType.MicrosoftExtensionsDependencyInjection).ConfigureAwait(false);
         }
     }

@@ -8,7 +8,7 @@ namespace MongoDbFramework.CastleWindsor
 {
     public static class Installer
     {
-        public static void AddMongoDbContext<TContext>(
+        public static IWindsorContainer AddMongoDbContext<TContext>(
                this IWindsorContainer containerBuilder,
                Action<MongoDbOptionBuilder> options,
                LifestyleType contextLifestyle = LifestyleType.Scoped,
@@ -16,6 +16,7 @@ namespace MongoDbFramework.CastleWindsor
                where TContext : MongoDbContext
         {
             containerBuilder.AddMongoDbContext<TContext>((p, b) => options.Invoke(b), contextLifestyle, optionsLifestyle);
+            return containerBuilder;
         }
 
         private static IWindsorContainer AddMongoDbContext<TContext>(
