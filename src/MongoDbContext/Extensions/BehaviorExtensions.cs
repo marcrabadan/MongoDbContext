@@ -24,5 +24,17 @@ namespace MongoDbFramework
                 WriteConcern = behavior.WriteConcern
             };
         }
+        public static MongoCollectionSettings ToMongoCollectionSettings(this Behavior behavior)
+        {
+            if (behavior == null)
+                return default(MongoCollectionSettings);
+
+            return new MongoCollectionSettings
+            {                
+                ReadPreference = behavior.ReadPreference,
+                ReadConcern = behavior.ReadConcern,
+                WriteConcern = behavior.WriteConcern                
+            };
+        }
     }
 }

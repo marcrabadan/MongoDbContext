@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDbContext", "src\MongoDbContext\MongoDbContext.csproj", "{39B5F9AD-F4BC-40D2-B886-751A2B3D3F20}"
 EndProject
@@ -13,11 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDbContext.IntegrationT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDbContext.UnitTests", "test\MongoDbContext.UnitTests\MongoDbContext.UnitTests.csproj", "{248E4F30-7EDF-4791-AABE-61CC798AC9F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDbContext.Autofac", "src\MongoDbContext.Autofac\MongoDbContext.Autofac.csproj", "{65794B6F-B2CD-471B-BB90-3480EBC49960}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDbContext.Autofac", "src\MongoDbContext.Autofac\MongoDbContext.Autofac.csproj", "{65794B6F-B2CD-471B-BB90-3480EBC49960}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDbContext.CastleWindsor", "src\MongoDbContext.CastleWindsor\MongoDbContext.CastleWindsor.csproj", "{7201238E-163D-4627-B08D-9015E6BB5D45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDbContext.CastleWindsor", "src\MongoDbContext.CastleWindsor\MongoDbContext.CastleWindsor.csproj", "{7201238E-163D-4627-B08D-9015E6BB5D45}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDbContext.Extensions.DependencyInjection", "src\MongoDbContext.Extensions.DependencyInjection\MongoDbContext.Extensions.DependencyInjection.csproj", "{3998C1E5-7251-421E-9B6D-0AAB4400FA18}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDbContext.Abstractions", "src\MongoDbContext.Abstractions\MongoDbContext.Abstractions.csproj", "{1323B28D-9BEC-403C-9D96-78DF38A0AC72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +51,10 @@ Global
 		{3998C1E5-7251-421E-9B6D-0AAB4400FA18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3998C1E5-7251-421E-9B6D-0AAB4400FA18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3998C1E5-7251-421E-9B6D-0AAB4400FA18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1323B28D-9BEC-403C-9D96-78DF38A0AC72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1323B28D-9BEC-403C-9D96-78DF38A0AC72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1323B28D-9BEC-403C-9D96-78DF38A0AC72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1323B28D-9BEC-403C-9D96-78DF38A0AC72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +66,7 @@ Global
 		{65794B6F-B2CD-471B-BB90-3480EBC49960} = {46A32DEE-B67E-4823-994A-F9FD7D686928}
 		{7201238E-163D-4627-B08D-9015E6BB5D45} = {46A32DEE-B67E-4823-994A-F9FD7D686928}
 		{3998C1E5-7251-421E-9B6D-0AAB4400FA18} = {46A32DEE-B67E-4823-994A-F9FD7D686928}
+		{1323B28D-9BEC-403C-9D96-78DF38A0AC72} = {46A32DEE-B67E-4823-994A-F9FD7D686928}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8D7A09BA-6EDB-45EB-8229-8D0CBFD08A1F}

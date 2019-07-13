@@ -9,11 +9,11 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/marcrabadan/MongoDbContext</PackageProjectUrl>
     <RepositoryUrl>https://github.com/marcrabadan/MongoDbContext</RepositoryUrl>
-    <Version>4.0.4</Version>
+    <Version>4.0.5.4</Version>
     <AssemblyName>MongoDbFramework</AssemblyName>
     <RootNamespace>MongoDbFramework</RootNamespace>
-    <FileVersion>4.0.4</FileVersion>
-    <AssemblyVersion>4.0.4</AssemblyVersion>
+    <FileVersion>4.0.5.4</FileVersion>
+    <AssemblyVersion>4.0.5.4</AssemblyVersion>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>MongoDbFramework, DbContext, mongodb, framework, persistence, infrastructure, azure cosmos, cosmos, file storage, storage, files, entity, documents</PackageTags>
     <PackageId>MongoDbContext</PackageId>
@@ -28,4 +28,15 @@
     <PackageReference Include="Polly" Version="6.1.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MongoDbContext.Abstractions\MongoDbContext.Abstractions.csproj" />
+  </ItemGroup>
+  
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NET461;NETFULL</DefineConstants>
+  </PropertyGroup>
 </Project>

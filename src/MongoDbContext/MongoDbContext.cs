@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using MongoDbFramework.Abstractions;
 using System;
 using System.Linq;
 
@@ -28,7 +29,7 @@ namespace MongoDbFramework
         {
         }
            
-        public MongoCollection<TDocument> Collection<TDocument>() where TDocument : Document
+        public MongoCollection<TDocument> Collection<TDocument>() where TDocument : IDocument
         {
             var modelBuilder = new ModelBuilder(MongoClient);
             OnModelCreating(modelBuilder);
@@ -38,7 +39,7 @@ namespace MongoDbFramework
             return new MongoCollection<TDocument>(configurationSource);
         }
 
-        public MongoFileCollection<TDocument> FileCollection<TDocument>() where TDocument : FileDocument, new()
+        public MongoFileCollection<TDocument> FileCollection<TDocument>() where TDocument : IFileDocument, new()
         {
             var modelBuilder = new ModelBuilder(MongoClient);
             OnModelCreating(modelBuilder);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MongoDB.Driver;
+using MongoDbFramework.Abstractions;
 
 namespace MongoDbFramework
 {
@@ -17,6 +18,7 @@ namespace MongoDbFramework
         public string CollectionName { get; set; }
         public FileStorageOptions FileStorageOptions { get; set; }
         public Behavior DatabaseBehavior { get; set; }
+        public Behavior CollectionBehavior { get; set; }
         public SessionBehavior SessionBehavior { get; set; }
         public Behavior TransactionBehavior { get; set; }
     }

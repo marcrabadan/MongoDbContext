@@ -15,7 +15,13 @@ namespace MongoDbFramework.IntegrationTests.Fixtures
             {
                 options.Configure(c =>
                 {
-                    options.ConnectionString("mongodb://localhost:27017");
+                    options.Configure(x =>
+                    {
+                        x.Server = new MongoServerAddress("localhost");
+                        x.ConnectionMode = ConnectionMode.Direct;
+                        x.ReadConcern = ReadConcern.Default;
+                        x.WriteConcern = WriteConcern.Acknowledged;
+                    });
                 });
             }, LifestyleType.Transient, LifestyleType.Singleton);
 

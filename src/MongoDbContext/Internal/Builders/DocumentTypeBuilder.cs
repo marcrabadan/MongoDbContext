@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using MongoDbFramework.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace MongoDbFramework
     {
         private Action<DocumentTypeBuilder<T>> _apply;
         private bool _isDefaultDatabaseBehavior = true;
+        private bool _isDefaultCollectionBehavior = true;
         private bool _isDefaultSessionBehavior = true;
         private bool _isDefaultTransactionBehavior = true;
 
@@ -28,6 +30,7 @@ namespace MongoDbFramework
         internal FileStorageOptions FileStorageOptions { get; set; }
         internal FindOptions<T> FindOptions { get; set; }
         internal Behavior DatabaseBehavior { get; set; }
+        internal Behavior CollectionBehavior { get; set; }
         internal SessionBehavior SessionBehavior { get; set; }
         internal Behavior TransactionBehavior { get; set; }
         
@@ -86,7 +89,7 @@ namespace MongoDbFramework
             return this;
         }
 
-        public FileDocumentTypeBuilder<TFileDocument> AsFileStorage<TFileDocument>() where TFileDocument : FileDocument
+        public FileDocumentTypeBuilder<TFileDocument> AsFileStorage<TFileDocument>() where TFileDocument : IFileDocument
         {
             var builder = new FileDocumentTypeBuilder<TFileDocument>(c => Apply(c));
             _apply(this);
@@ -112,6 +115,15 @@ namespace MongoDbFramework
             behavior.Invoke(builder);
             DatabaseBehavior = builder.Build();
             _isDefaultDatabaseBehavior = false;
+            _apply(this);
+            return this;
+        }
+        public DocumentTypeBuilder<T> WithCollectionBehavior(Action<BehaviorBuilder<T>> behavior)
+        {
+            var builder = new BehaviorBuilder<T>(ApplyCollectionBehavior);
+            behavior.Invoke(builder);
+            CollectionBehavior = builder.Build();
+            _isDefaultCollectionBehavior = false;
             _apply(this);
             return this;
         }
@@ -143,6 +155,13 @@ namespace MongoDbFramework
             _apply(this);
         }
 
+        internal void ApplyCollectionBehavior(BehaviorBuilder<T> builder)
+        {
+            var behavior = builder.Build();
+            CollectionBehavior = behavior;
+            _apply(this);
+        }
+
         internal void ApplySessionBehavior(SessionBehaviorBuilder<T> builder)
         {
             var sessionBehavior = builder.Build();
@@ -157,7 +176,7 @@ namespace MongoDbFramework
             _apply(this);
         }
 
-        internal void Apply<TFileDocument>(FileDocumentTypeBuilder<TFileDocument> modelBuilder) where TFileDocument : FileDocument
+        internal void Apply<TFileDocument>(FileDocumentTypeBuilder<TFileDocument> modelBuilder) where TFileDocument : IFileDocument
         {
             IsFileDocument = true;
             FileStorageOptions = modelBuilder.Build();
@@ -170,8 +189,17 @@ namespace MongoDbFramework
             {
                 DatabaseBehavior = new Behavior
                 {
-                    ReadPreference = ReadPreference.Primary,
-                    ReadConcern = ReadConcern.Default,
+                    ReadPreference = ReadPreference.Secondary,
+                    ReadConcern = ReadConcern.Linearizable,
+                    WriteConcern = WriteConcern.WMajority
+                };
+            }
+            if (_isDefaultCollectionBehavior)
+            {
+                CollectionBehavior = new Behavior
+                {
+                    ReadPreference = ReadPreference.Secondary,
+                    ReadConcern = ReadConcern.Linearizable,
                     WriteConcern = WriteConcern.WMajority
                 };
             }
@@ -179,9 +207,9 @@ namespace MongoDbFramework
             {
                 SessionBehavior = new SessionBehavior
                 {
-                    CasualConsistency = true,
+                    CasualConsistency = true,                    
                     ReadPreference = ReadPreference.Primary,
-                    ReadConcern = ReadConcern.Default,
+                    ReadConcern = ReadConcern.Linearizable,
                     WriteConcern = WriteConcern.WMajority
                 };
             }
@@ -190,7 +218,7 @@ namespace MongoDbFramework
                 TransactionBehavior = new Behavior
                 {
                     ReadPreference = ReadPreference.Primary,
-                    ReadConcern = ReadConcern.Default,
+                    ReadConcern = ReadConcern.Linearizable,
                     WriteConcern = WriteConcern.WMajority
                 };
             }

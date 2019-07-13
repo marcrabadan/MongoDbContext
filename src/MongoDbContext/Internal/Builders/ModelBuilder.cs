@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using MongoDbFramework.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -34,6 +35,7 @@ namespace MongoDbFramework
                 FileStorageOptions = modelBuilder.FileStorageOptions,
                 FindOptions = modelBuilder.FindOptions,
                 DatabaseBehavior = modelBuilder.DatabaseBehavior,
+                CollectionBehavior = modelBuilder.CollectionBehavior,
                 SessionBehavior = modelBuilder.SessionBehavior,
                 TransactionBehavior = modelBuilder.TransactionBehavior,
             };

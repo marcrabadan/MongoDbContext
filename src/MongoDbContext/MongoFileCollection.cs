@@ -1,6 +1,8 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using MongoDbFramework.Abstractions;
+using MongoDbFramework.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 namespace MongoDbFramework
 {
 
-    public class MongoFileCollection<TFile> : IMongoFileCollection<TFile> where TFile : FileDocument, new()
+    public class MongoFileCollection<TFile> : IMongoFileCollection<TFile> where TFile : IFileDocument, new()
     {
         private readonly ConfigurationSource<TFile> configurationSource;
 
@@ -27,25 +29,25 @@ namespace MongoDbFramework
         protected internal IMongoDatabase Database { get; set; }
         protected internal GridFSBucket Bucket { get; set; }
 
-        public async Task<byte[]> DownloadByFileNameAsync(string fileName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<byte[]> DownloadByFileNameAsync(string fileName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await Bucket.DownloadAsBytesByNameAsync(fileName, null, cancellationToken).ConfigureAwait(false);
+            return Bucket.DownloadAsBytesByNameAsync(fileName, null, cancellationToken);
         }
 
-        public async Task<byte[]> DownloadByIdAsync(ObjectId id, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<byte[]> DownloadByIdAsync<TKey>(TKey id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (id == null || id == ObjectId.Empty) throw new InvalidOperationException("Id is null or empty.");
+            if (id == null) throw new InvalidOperationException("Id is null or empty.");
 
-            return await Bucket.DownloadAsBytesAsync(id, null, cancellationToken).ConfigureAwait(false);
+            return Bucket.DownloadAsBytesAsync(BsonValue.Create(id), null, cancellationToken);
         }
 
-        public async Task<TFile> GetFileByIdAsync(ObjectId id, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TFile> GetFileByIdAsync<TKey>(TKey id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (id == null || id == ObjectId.Empty) throw new InvalidOperationException("Id is null or empty.");
-
+            if (id == null) throw new InvalidOperationException("Id is null or empty.");
+            var bsonDocument = typeof(TFile).FindKey().GetBsonValue(id);
             try
             {
-                var find = await Bucket.FindAsync(new BsonDocument("_id", id), null, cancellationToken).ConfigureAwait(false);
+                var find = await Bucket.FindAsync(bsonDocument, null, cancellationToken).ConfigureAwait(false);
 
                 await find.MoveNextAsync(cancellationToken).ConfigureAwait(false);
 
@@ -55,10 +57,9 @@ namespace MongoDbFramework
 
                 var file = new TFile
                 {
-                    Id = fileInfo.Id,
                     FileName = fileInfo.Filename
                 };
-
+                file.SetId(fileInfo.Id);
                 SetMetadata(fileInfo, file);
                 
                 return file;
@@ -81,9 +82,9 @@ namespace MongoDbFramework
             
             var file = new TFile
             {
-                Id = fileInfo.Id,
-                FileName = fileInfo.Filename,
+                FileName = fileInfo.Filename
             };
+            file.SetId(fileInfo.Id);
 
             SetMetadata(fileInfo, file);
 
@@ -106,10 +107,9 @@ namespace MongoDbFramework
                 {
                     var file = new TFile
                     {
-                        Id = gridFsFileInfo.Id,
                         FileName = gridFsFileInfo.Filename
                     };
-
+                    file.SetId(gridFsFileInfo.Id);
                     SetMetadata(gridFsFileInfo, file);
 
                     return file;
@@ -143,18 +143,18 @@ namespace MongoDbFramework
             return id;
         }
 
-        public async Task DeleteAsync(ObjectId id, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeleteAsync<TKey>(TKey id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (id == null || id == ObjectId.Empty) throw new InvalidOperationException("Id is null or empty.");
+            if (id == null) throw new InvalidOperationException("Id is null or empty.");
             
-            await Bucket.DeleteAsync(id, cancellationToken).ConfigureAwait(false);
+            await Bucket.DeleteAsync(BsonValue.Create(id), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task RenameAsync(ObjectId id, string fileName, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task RenameAsync<TKey>(TKey id, string fileName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (id == null || id == ObjectId.Empty) throw new InvalidOperationException("Id is null or empty.");
+            if (id == null) throw new InvalidOperationException("Id is null or empty.");
 
-            await Bucket.RenameAsync(id, fileName, cancellationToken).ConfigureAwait(false);
+            await Bucket.RenameAsync(BsonValue.Create(id), fileName, cancellationToken).ConfigureAwait(false);
         }
 
         private void SetDefaultValues(State state, TFile file)

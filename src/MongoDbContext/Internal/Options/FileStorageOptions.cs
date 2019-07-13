@@ -1,10 +1,11 @@
 ﻿using MongoDB.Driver;
+using MongoDbFramework.Abstractions;
 using System;
 using System.Collections.Generic;
 
 namespace MongoDbFramework
 {
-    public sealed class FileStorageOptions<T> : FileStorageOptions where T : FileDocument
+    public sealed class FileStorageOptions<T> : FileStorageOptions where T : IFileDocument
     {
         public Type Type => typeof(T);
     }

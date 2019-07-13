@@ -12,10 +12,13 @@ namespace MongoDbFramework.IntegrationTests.Fixtures
         {
             var services = new ServiceCollection();
             services.AddMongoDbContext<TContext>(options =>
-            {
-                options.Configure(c =>
+            {                
+                options.Configure(x =>
                 {
-                    options.ConnectionString("mongodb://localhost:27017");
+                    x.Server = new MongoServerAddress("localhost");
+                    x.ConnectionMode = ConnectionMode.Direct;
+                    x.ReadConcern = ReadConcern.Default;
+                    x.WriteConcern = WriteConcern.Acknowledged;
                 });
             }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
 

@@ -21,6 +21,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\src\MongoDbContext.Abstractions\MongoDbContext.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\MongoDbContext.Autofac\MongoDbContext.Autofac.csproj" />
     <ProjectReference Include="..\..\src\MongoDbContext.CastleWindsor\MongoDbContext.CastleWindsor.csproj" />
     <ProjectReference Include="..\..\src\MongoDbContext.Extensions.DependencyInjection\MongoDbContext.Extensions.DependencyInjection.csproj" />

@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\MongoDbContext.Abstractions\MongoDbContext.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\MongoDbContext\MongoDbContext.csproj" />
   </ItemGroup>
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using MongoDB.Driver;
+using MongoDbFramework.Abstractions;
 
 namespace MongoDbFramework
 {

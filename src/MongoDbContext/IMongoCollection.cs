@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDbFramework.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -8,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace MongoDbFramework
 {
-    public interface IMongoCollection<TDocument> : IDisposable where TDocument : Document
+    public interface IMongoCollection<TDocument> : IDisposable where TDocument : IDocument
     {
         Task<IClientSessionHandle> BeginSessionAsync(Action<SessionBehavior> sessionBehaviorAction = default(Action<SessionBehavior>), CancellationToken cancellationToken = default(CancellationToken));
         Task DoTransactionAsync(Func<CancellationToken, Task> txnAction, Action<Behavior> transactionBehaviorAction = default(Action<Behavior>), Action<SessionBehavior> sessionBehaviorAction = default(Action<SessionBehavior>), IClientSessionHandle parentSession = default(IClientSessionHandle), CancellationToken cancellationToken = default(CancellationToken));
         Task<TDocument> FirstOrDefaultAsync(Expression<Func<TDocument, bool>> expression, CancellationToken cancellationToken = default(CancellationToken));
         Task<List<TDocument>> GetAsync(int page, Expression<Func<TDocument, bool>> expression, Tuple<Expression<Func<TDocument, object>>, SortingType> sort = null, CancellationToken cancellationToken = default(CancellationToken));
-        Task<TDocument> FindAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TDocument> FindAsync<TValue>(TValue id, CancellationToken cancellationToken = default(CancellationToken));
         Task<List<TDocument>> GetAllAsync(int page, CancellationToken cancellationToken = default(CancellationToken));
         Task<TDocument> AddAsync(TDocument item, CancellationToken cancellationToken = default(CancellationToken));
         Task AddRangeAsync(List<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken));

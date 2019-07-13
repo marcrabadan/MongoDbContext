@@ -20,7 +20,19 @@ namespace MongoDbFramework.IntegrationTests.Contexts
                     c.SetDiscriminator(typeof(Tweet).FullName);
                 })
                 .WithDatabase("socialDb")
-                .WithCollection("tweets");
+                .WithCollection("tweets")
+                .WithDatabaseBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Default);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                })
+                .WithCollectionBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Default);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                });
 
             modelBuilder
                 .Document<Movie>()
@@ -36,13 +48,28 @@ namespace MongoDbFramework.IntegrationTests.Contexts
                 {
                     c.Name = "CategoryIndex";
                     c.Unique = false;
+                })
+                .WithDatabaseBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Nearest);
+                    c.WithReadConcern(ReadConcern.Default);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                })
+                .WithCollectionBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Default);
+                    c.WithWriteConcern(WriteConcern.WMajority);
                 });
 
             modelBuilder.Document<ImageBlob>()
                 .WithDatabase("fileStorage")
                 .AsFileStorage<ImageBlob>()
                 .WithBucketName("ImageBlobBucket")
-                .WithChunkSize(64512);
+                .WithChunkSize(64512)
+                .WithReadConcern(ReadConcern.Default)
+                .WithReadPreference(ReadPreference.Nearest)
+                .WithWriteConcern(WriteConcern.WMajority);
         }
 
         public MongoCollection<Tweet> Tweets { get; set; }

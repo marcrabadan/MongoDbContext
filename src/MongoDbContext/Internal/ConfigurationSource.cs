@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using MongoDbFramework.Abstractions;
 using System;
 
 namespace MongoDbFramework

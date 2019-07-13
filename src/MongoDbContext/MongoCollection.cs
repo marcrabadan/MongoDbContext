@@ -1,6 +1,8 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using MongoDbFramework.Abstractions;
+using MongoDbFramework.Extensions;
 using Polly;
 using Polly.Retry;
 using System;
@@ -12,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace MongoDbFramework
 {
-    public class MongoCollection<TDocument> : IMongoCollection<TDocument> where TDocument : Document
+    public class MongoCollection<TDocument> : IMongoCollection<TDocument> where TDocument : IDocument
     {
         private IClientSessionHandle clientSessionHandle;
         private readonly ConfigurationSource<TDocument> configurationSource;
@@ -26,7 +28,7 @@ namespace MongoDbFramework
             Client = this.configurationSource?.ToMongoClient();
             Database = this.configurationSource?.ToMongoDatabase(Client);
             Collection = this.configurationSource?.ToMongoCollection(Database);
-
+                            
             transactionRetryPolicy = Policy
                 .Handle<MongoException>(c => c.HasErrorLabel("TransientTransactionError"))
                 .WaitAndRetryAsync(5, retryAttempt =>
@@ -50,7 +52,13 @@ namespace MongoDbFramework
             var sessionBehavior = new SessionBehavior();
             sessionBehaviorAction?.Invoke(sessionBehavior);
             sessionBehavior = sessionBehaviorAction == null ? this.configurationSource.Model.SessionBehavior : default(SessionBehavior);
-            this.clientSessionHandle = await this.configurationSource.Source.StartSessionAsync(sessionBehavior.ToClientSessionOptions(), cancellationToken).ConfigureAwait(false);
+                       
+            var task = this.configurationSource.Source.StartSessionAsync(sessionBehavior.ToClientSessionOptions(), cancellationToken);
+#if NETFULL
+            this.clientSessionHandle = await task.ConfigureAwait(false);
+#else
+            this.clientSessionHandle = await task;
+#endif
             return this.clientSessionHandle;
         }
         
@@ -60,11 +68,16 @@ namespace MongoDbFramework
             sessionBehaviorAction?.Invoke(sessionBehavior);
             sessionBehavior = sessionBehaviorAction == null ? this.configurationSource.Model.SessionBehavior : default(SessionBehavior);
             using (var session = await this.configurationSource.Source.StartSessionAsync(sessionBehavior.ToClientSessionOptions(), cancellationToken).ConfigureAwait(false))
-            {
+            {                
                 try
                 {
                     this.clientSessionHandle = session;
-                    await transactionRetryPolicy.ExecuteAsync((cToken) => RunTransactionAsync(txnAction, session, parentSession, transactionBehaviorAction, cToken), cancellationToken).ConfigureAwait(false);
+                    var task = transactionRetryPolicy.ExecuteAsync((cToken) => RunTransactionAsync(txnAction, session, parentSession, transactionBehaviorAction, cToken), cancellationToken);
+#if NETFULL
+                    await task.ConfigureAwait(false);
+#else
+                    await task;
+#endif
                 }
                 catch (Exception)
                 {
@@ -75,7 +88,7 @@ namespace MongoDbFramework
             this.clientSessionHandle = default(IClientSessionHandle);
         }
         
-        public async Task<TDocument> FirstOrDefaultAsync(Expression<Func<TDocument, bool>> expression, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TDocument> FirstOrDefaultAsync(Expression<Func<TDocument, bool>> expression, CancellationToken cancellationToken = default(CancellationToken))
         {
             IFindFluent<TDocument, TDocument> findFluent;
             if (IsInTransaction())
@@ -83,10 +96,10 @@ namespace MongoDbFramework
             else
                 findFluent = Collection.Find(expression);
 
-            return await findFluent.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            return findFluent.FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<List<TDocument>> GetAsync(int page, Expression<Func<TDocument, bool>> expression, Tuple<Expression<Func<TDocument, object>>, SortingType> sort = null, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<List<TDocument>> GetAsync(int page, Expression<Func<TDocument, bool>> expression, Tuple<Expression<Func<TDocument, object>>, SortingType> sort = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var currentPage = page < 0 ? 0 : page - 1;
 
@@ -107,7 +120,7 @@ namespace MongoDbFramework
                 find = find.Sort(sortByDefinition);
             }
 
-            return await find.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return find.ToListAsync(cancellationToken);
         }
 
         public Task<IAsyncCursor<TDocument>> GetAsync(Expression<Func<TDocument, bool>> expression, CancellationToken cancellationToken = default(CancellationToken))
@@ -118,18 +131,19 @@ namespace MongoDbFramework
                 return Collection.FindAsync(expression, this.configurationSource.Model.FindOptions);
         }
 
-        public async Task<TDocument> FindAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TDocument> FindAsync<TKey>(TKey id, CancellationToken cancellationToken = default(CancellationToken))
         {
             IAsyncCursor<TDocument> findSync;
+            var bsonDocument = typeof(TDocument).FindKey().GetBsonValue(id);
             if (IsInTransaction())
-                findSync = Collection.FindSync(this.clientSessionHandle, c => c.Id == id);
+                findSync = Collection.FindSync(this.clientSessionHandle, bsonDocument);
             else
-                findSync = Collection.FindSync(c => c.Id == id);
+                findSync = Collection.FindSync(bsonDocument);
 
-            return await findSync.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            return findSync.FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<List<TDocument>> GetAllAsync(int page, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<List<TDocument>> GetAllAsync(int page, CancellationToken cancellationToken = default(CancellationToken))
         {
             var currentPage = page < 0 ? 0 : page - 1;
 
@@ -143,44 +157,45 @@ namespace MongoDbFramework
                 .Skip(currentPage * 1000)
                 .Limit(1000);
 
-            return await find.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return find.ToListAsync(cancellationToken);
         }
 
         public async Task<TDocument> AddAsync(TDocument item, CancellationToken cancellationToken = default(CancellationToken))
         {
-            item.Created();
-
+            Task task;
             if (IsInTransaction())
-                await Collection.InsertOneAsync(this.clientSessionHandle, item, cancellationToken: CancellationToken.None).ConfigureAwait(false);
+                task = Collection.InsertOneAsync(this.clientSessionHandle, item, cancellationToken:cancellationToken);
             else
-                await Collection.InsertOneAsync(item, cancellationToken: cancellationToken).ConfigureAwait(false);
-
+                task = Collection.InsertOneAsync(item, cancellationToken: cancellationToken);
+            
+#if NETFULL
+            await task.ConfigureAwait(false);
+#else
+            await task;
+#endif
             return item;
         }
 
-        public async Task AddRangeAsync(List<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken))
+        public Task AddRangeAsync(List<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken))
         {
-            documents.ForEach(c => c.Created());
-
             if (IsInTransaction())
-                await Collection.InsertManyAsync(this.clientSessionHandle, documents, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.InsertManyAsync(this.clientSessionHandle, documents, cancellationToken: cancellationToken);
             else
-                await Collection.InsertManyAsync(documents, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.InsertManyAsync(documents, cancellationToken: cancellationToken);
         }
 
-        public async Task ReplaceOneAsync(TDocument item, Expression<Func<TDocument, bool>> filter, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken))
+        public Task ReplaceOneAsync(TDocument item, Expression<Func<TDocument, bool>> filter, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken))
         {
-            item.Modified();
             var options = updateOptionsAction == null ? default(UpdateOptions) : new UpdateOptions();
             updateOptionsAction?.Invoke(options);
 
             if (IsInTransaction())
-                await Collection.ReplaceOneAsync(this.clientSessionHandle, filter, item, options, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.ReplaceOneAsync(this.clientSessionHandle, filter, item, options, cancellationToken: cancellationToken);
             else
-                await Collection.ReplaceOneAsync(filter, item, options, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.ReplaceOneAsync(filter, item, options, cancellationToken: cancellationToken);
         }
 
-        public async Task UpdateOneAsync(Expression<Func<TDocument, bool>> filter, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateDefinitionAction, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken))
+        public Task UpdateOneAsync(Expression<Func<TDocument, bool>> filter, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateDefinitionAction, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken))
         {
             var options = updateOptionsAction == default(Action<UpdateOptions>) ? default(UpdateOptions) : new UpdateOptions();
             var updateBuilder = new UpdateDefinitionBuilder<TDocument>();
@@ -188,12 +203,12 @@ namespace MongoDbFramework
             updateOptionsAction?.Invoke(options);
 
             if (IsInTransaction())
-                await Collection.UpdateOneAsync(this.clientSessionHandle, filter, updateDefinition, options, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.UpdateOneAsync(this.clientSessionHandle, filter, updateDefinition, options, cancellationToken: cancellationToken);
             else
-                await Collection.UpdateOneAsync(filter, updateDefinition, options, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.UpdateOneAsync(filter, updateDefinition, options, cancellationToken: cancellationToken);
         }
 
-        public async Task UpdateManyAsync(Expression<Func<TDocument, bool>> filter, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateDefinitionAction, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken))
+        public Task UpdateManyAsync(Expression<Func<TDocument, bool>> filter, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateDefinitionAction, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken))
         {
             var options = updateOptionsAction == default(Action<UpdateOptions>) ? default(UpdateOptions) : new UpdateOptions();
             var updateBuilder = new UpdateDefinitionBuilder<TDocument>();
@@ -201,49 +216,50 @@ namespace MongoDbFramework
             updateOptionsAction?.Invoke(options);
 
             if (IsInTransaction())
-                await Collection.UpdateManyAsync(this.clientSessionHandle, filter, updateDefinition, options, cancellationToken).ConfigureAwait(false);
+                return Collection.UpdateManyAsync(this.clientSessionHandle, filter, updateDefinition, options, cancellationToken);
             else
-                await Collection.UpdateManyAsync(filter, updateDefinition, options, cancellationToken).ConfigureAwait(false);
+                return Collection.UpdateManyAsync(filter, updateDefinition, options, cancellationToken);
         }
 
-        public async Task DeleteOneAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
+        public Task DeleteOneAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (IsInTransaction())
-                await Collection.DeleteOneAsync(this.clientSessionHandle, filter, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.DeleteOneAsync(this.clientSessionHandle, filter, cancellationToken: cancellationToken);
             else
-                await Collection.DeleteOneAsync(filter, cancellationToken).ConfigureAwait(false);
+                return Collection.DeleteOneAsync(filter, cancellationToken);
         }
         
-        public async Task DeleteManyAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
+        public Task DeleteManyAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (IsInTransaction())
-                await Collection.DeleteManyAsync(this.clientSessionHandle, filter, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.DeleteManyAsync(this.clientSessionHandle, filter, cancellationToken: cancellationToken);
             else
-                await Collection.DeleteManyAsync(filter, cancellationToken).ConfigureAwait(false);
+                return Collection.DeleteManyAsync(filter, cancellationToken);
         }
 
-        public async Task DeleteManyByIdAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken))
+        public Task DeleteManyByIdAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken))
         {
+            var property = typeof(TDocument).FindKey();
             if (IsInTransaction())
-                await Collection.DeleteManyAsync(this.clientSessionHandle, Builders<TDocument>.Filter.In(c => c.Id, documents.Select(c => c.Id)), cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.DeleteManyAsync(this.clientSessionHandle, Builders<TDocument>.Filter.In(property.Name, documents.Select(c => c.FindKey().GetValueFromProperty(c))), cancellationToken: cancellationToken);
             else
-                await Collection.DeleteManyAsync(Builders<TDocument>.Filter.In(c => c.Id, documents.Select(c => c.Id)), cancellationToken).ConfigureAwait(false);
+                return Collection.DeleteManyAsync(Builders<TDocument>.Filter.In(property.Name, documents.Select(c => c.FindKey().GetValueFromProperty(c))), cancellationToken);
         }
 
-        public async Task CountAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task CountAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (IsInTransaction())
-                await Collection.CountDocumentsAsync(this.clientSessionHandle, FilterDefinition<TDocument>.Empty, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.CountDocumentsAsync(this.clientSessionHandle, FilterDefinition<TDocument>.Empty, cancellationToken: cancellationToken);
             else
-                await Collection.CountDocumentsAsync(FilterDefinition<TDocument>.Empty, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.CountDocumentsAsync(FilterDefinition<TDocument>.Empty, cancellationToken: cancellationToken);
         }
 
-        public async Task CountAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
+        public Task CountAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (IsInTransaction())
-                await Collection.CountDocumentsAsync(this.clientSessionHandle, filter, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.CountDocumentsAsync(this.clientSessionHandle, filter, cancellationToken: cancellationToken);
             else
-                await Collection.CountDocumentsAsync(filter, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Collection.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
         }
 
         public Task EstimatedDocumentCountAsync(Action<EstimatedDocumentCountOptions> estimatedDocumentCountOptionsAction = default(Action<EstimatedDocumentCountOptions>), CancellationToken cancellationToken = default(CancellationToken))
@@ -256,12 +272,23 @@ namespace MongoDbFramework
         public async Task<List<TProjection>> MapReduceAsync<TProjection>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
         {
             IAsyncCursor<TProjection> mapReduce;
+            Task<IAsyncCursor<TProjection>> task;
             if (IsInTransaction())
-                mapReduce = await Collection.MapReduceAsync(this.clientSessionHandle, map, reduce, options, cancellationToken).ConfigureAwait(false);
+                task = Collection.MapReduceAsync(this.clientSessionHandle, map, reduce, options, cancellationToken);
             else
-                mapReduce = await Collection.MapReduceAsync(map, reduce, options, cancellationToken).ConfigureAwait(false);
+                task = Collection.MapReduceAsync(map, reduce, options, cancellationToken);
 
+#if NETFULL
+            mapReduce = await task.ConfigureAwait(false);
+#else
+            mapReduce = await task;
+#endif
+
+#if NETFULL
             return await mapReduce.ToListAsync(cancellationToken).ConfigureAwait(false);
+#else
+            return await mapReduce.ToListAsync(cancellationToken);
+#endif
         }
 
         private async Task RunTransactionAsync(Func<CancellationToken, Task> txnFunc, IClientSessionHandle session, IClientSessionHandle parentSession = default(IClientSessionHandle), Action<Behavior> transactionBehaviorAction = default(Action<Behavior>), CancellationToken cancellationToken = default(CancellationToken))
@@ -279,14 +306,23 @@ namespace MongoDbFramework
                 }
 
                 session.StartTransaction(transactionBehavior.ToTransactionOptions());
-                
+#if NETFULL
                 await txnFunc(cancellationToken).ConfigureAwait(false);
 
                 await commitRetryPolicy.ExecuteAsync((cToken) => CommitAsync(session, cToken), cancellationToken).ConfigureAwait(false);
+#else
+                await txnFunc(cancellationToken);
+
+                await commitRetryPolicy.ExecuteAsync((cToken) => CommitAsync(session, cToken), cancellationToken);
+#endif
             }
             catch (Exception)
             {
+#if NETFULL
                 await session.AbortTransactionAsync(cancellationToken).ConfigureAwait(false);
+#else
+                await session.AbortTransactionAsync(cancellationToken);
+#endif
                 throw;
             }
         }
@@ -295,9 +331,18 @@ namespace MongoDbFramework
         {
             try
             {
-                return this.clientSessionHandle?.IsInTransaction ?? false;
+                var isInTransaction = this.clientSessionHandle?.IsInTransaction ?? false;
+                if (!isInTransaction)
+                {
+                    Collection = this.configurationSource?.ToMongoCollection(Database);
+                    return false;
+                }
+
+                Collection = this.clientSessionHandle.ToCollection(configurationSource);
+
+                return true;
             }
-            catch (ObjectDisposedException e)
+            catch (ObjectDisposedException)
             {
                 return false;
             }
@@ -307,7 +352,11 @@ namespace MongoDbFramework
         {
             try
             {
+#if NETFULL
                 await session.CommitTransactionAsync(cancellationToken).ConfigureAwait(false);
+#else
+                await session.CommitTransactionAsync(cancellationToken);
+#endif
             }
             catch (Exception)
             {

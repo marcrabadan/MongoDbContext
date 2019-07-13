@@ -1,10 +1,11 @@
 ﻿using MongoDB.Driver;
+using MongoDbFramework.Abstractions;
 using System;
 using System.Collections.Generic;
 
 namespace MongoDbFramework
 {
-    public sealed class FileDocumentTypeBuilder<T> where T : FileDocument
+    public sealed class FileDocumentTypeBuilder<T> where T : IFileDocument
     {
         private Action<FileDocumentTypeBuilder<T>> _apply;
 

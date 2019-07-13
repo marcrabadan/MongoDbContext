@@ -14,7 +14,13 @@ namespace MongoDbFramework.IntegrationTests.Fixtures
             var containerBuilder = new ContainerBuilder();
             containerBuilder.AddMongoDbContext<TContext>(options =>
             {
-                options.ConnectionString("mongodb://localhost:27017");
+                options.Configure(x =>
+                {
+                    x.Server = new MongoServerAddress("localhost");
+                    x.ConnectionMode = ConnectionMode.Direct;
+                    x.ReadConcern = ReadConcern.Default;
+                    x.WriteConcern = WriteConcern.Acknowledged;
+                });
             }, LifeTime.Transient, LifeTime.Singleton);
 
             this.Container = containerBuilder.Build();
