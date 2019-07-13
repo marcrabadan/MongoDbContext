@@ -11,6 +11,7 @@
     <PackageProjectUrl>https://github.com/marcrabadan/MongoDbContext</PackageProjectUrl>
     <RepositoryUrl>https://github.com/marcrabadan/MongoDbContext</RepositoryUrl>
     <PackageTags>MongoDbFramework, DbContext, mongodb, framework, persistence, infrastructure, azure cosmos, cosmos, file storage, storage, files, entity, documents</PackageTags>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
