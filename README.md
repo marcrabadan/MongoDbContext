@@ -5,17 +5,21 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
 
 > Install-Package MongoDbContext
 
+> Install-Package MongoDbContext.Abstractions
+
 # 1 - Creating documents.
 
 ```csharp
 
-    public class Tweet :  Document
+    public class Tweet : IDocument<Guid>
     {
+        public Guid Id { get; set; }
         public string Message { get; set; }
     }
     
-    public class Movie : Document
-    { 
+    public class Movie : IDocument<Guid>
+    {
+        public Guid Id { get; set; }
         public string Title { get; set; }
         public string Category { get; set; }
         public int Minutes { get; set; }
@@ -25,6 +29,7 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
 
 # 1 - Inherits from the MongoDbContext class.
 
+**ModelBuilder for one mongodb node**
 ```csharp
 
     public class SocialContext : MongoDbContext
@@ -80,6 +85,50 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
     }
     
 ```
+**ModelBuilder for ReplicaSet**
+
+```csharp
+
+public class SocialContext : MongoDbContext
+    {
+        public SocialContext(MongoDbOptions<SocialContext> options) : base(options)
+        {
+        }
+
+        public override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Document<Tweet>()
+                .WithDatabase("social")
+                .WithCollection("tweets")
+                .WithDatabaseBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.SecondaryPreferred);
+                    c.WithReadConcern(ReadConcern.Local);
+                    c.WithWriteConcern(WriteConcern.WMajority);                    
+                })
+                .WithCollectionBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.SecondaryPreferred);
+                    c.WithReadConcern(ReadConcern.Local);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                })
+                .WithTransactionBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Snapshot);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                })
+                .WithSessionBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                });
+        }
+
+        public MongoCollection<Tweet> Tweets { get; set; }
+    }
+
+```
 
 # 2 - Dependency Injection
 
@@ -89,7 +138,7 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
   services.AddMongoDbContext<SocialContext>();
     
 ```
-## IoC Provider supported:
+**IoC Provider supported:**
 
 > Install-Package MongoDbContext.Extensions.DependencyInjection
 
@@ -99,11 +148,13 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
 
 # 3 - Configuring
 
-SocialContext has a TRANSIENT lifestyle and your configuration has a SINGLETON lifestyle, both by default is SCOPED lifestyle.
+In the example, SocialContext has a TRANSIENT lifestyle and your configuration has a SINGLETON lifestyle, both by default is SCOPED lifestyle.
 
 You can choose by connection string or a custom configuration from MongoClientSettings.
 
 Azure Cosmos Db configuration is enabled in 1.0.1.
+
+**Configuration via Connection String:**
 
 ```csharp
 
@@ -112,6 +163,32 @@ services.AddMongoDbContext<SocialContext>(options =>
 {
     //options.ConnectionString("mongodb://localhost:27017");
     options.ConnectionString("mongodb://<serviceName>:<PRIMARYPASSWORD>@<serviceName>.documents.azure.com:10255/?ssl=true&replicaSet=globaldb");
+}, ServiceLifetime.Transient, ServiceLifetime.Singleton);
+    
+```
+**ReplicaSet Configuration:**
+You can see how it works with replicaset.  [https://github.com/marcrabadan/MongoReplicaSet]
+
+```csharp
+
+  var services = new ServiceCollection();
+  services.AddMongoDbContext<SocialContext>(c =>
+    {
+        c.Configure(x =>
+        {
+            x.Credential = mongoCredential;
+            x.Servers = new[]
+            {
+              new MongoServerAddress("mongo-rs-01", 27017),
+              new MongoServerAddress("mongo-rs-02", 27017),
+              new MongoServerAddress("mongo-rs-03", 27017)
+            };                    
+            x.ConnectionMode = ConnectionMode.ReplicaSet;
+            x.ReplicaSetName = "rs0";
+            x.ReadPreference = ReadPreference.Nearest;
+            x.ReadConcern = ReadConcern.Snapshot;
+            x.WriteConcern = WriteConcern.WMajority;
+        });
 }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
     
 ```
