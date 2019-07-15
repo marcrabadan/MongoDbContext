@@ -193,6 +193,9 @@ You can see how it works with replicaset.  [https://github.com/marcrabadan/Mongo
     
 ```
 
+# NEXT STEPS:
+- Enable Sharding
+
 # NOTE:
 
 - Azure Cosmos Db only for CRUD Operations.
