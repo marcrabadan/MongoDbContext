@@ -13,12 +13,14 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
 
     public class Tweet : IDocument<Guid>
     {
+        [Key]
         public Guid Id { get; set; }
         public string Message { get; set; }
     }
     
     public class Movie : IDocument<Guid>
     {
+        [Key]
         public Guid Id { get; set; }
         public string Title { get; set; }
         public string Category { get; set; }
