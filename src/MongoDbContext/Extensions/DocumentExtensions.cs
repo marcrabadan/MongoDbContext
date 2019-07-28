@@ -1,5 +1,4 @@
 ﻿using MongoDbFramework.Abstractions;
-using MongoDbFramework.Attributes;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -22,13 +21,13 @@ namespace MongoDbFramework
         public static PropertyInfo FindKey(this Type type)
         {
             var property = type.GetKeyPropertyInfo();
-            if (property == null) throw new ArgumentException($"You have to specify a key in {type} document with {nameof(KeyAttribute)}.");
+            if (property == null) throw new ArgumentException($"You have to specify a key in {type} document with {nameof(Abstractions.KeyAttribute)}.");
             return property;
         }
 
         private static PropertyInfo GetKeyPropertyInfo(this Type type)
         {
-            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(c => c.GetCustomAttributes(typeof(KeyAttribute), false).Any()).FirstOrDefault();
+            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(c => c.GetCustomAttributes(typeof(Abstractions.KeyAttribute), false).Any()).FirstOrDefault();
         }
     }
 }

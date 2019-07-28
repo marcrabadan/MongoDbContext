@@ -1,5 +1,5 @@
 ﻿using MongoDB.Bson;
-using MongoDbFramework.Attributes;
+using MongoDbFramework.Abstractions;
 using System.Reflection;
 
 namespace MongoDbFramework.Extensions

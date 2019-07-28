@@ -1,6 +1,5 @@
 ﻿using MongoDB.Bson;
 using MongoDbFramework.Abstractions;
-using MongoDbFramework.Attributes;
 using System.Collections.Generic;
 
 namespace MongoDbFramework.IntegrationTests.Documents

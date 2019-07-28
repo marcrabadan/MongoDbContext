@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using MongoDbFramework.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace MongoDbFramework
         Task<TDocument> FindAsync<TValue>(TValue id, CancellationToken cancellationToken = default(CancellationToken));
         Task<List<TDocument>> GetAllAsync(int page, CancellationToken cancellationToken = default(CancellationToken));
         Task<TDocument> AddAsync(TDocument item, CancellationToken cancellationToken = default(CancellationToken));
-        Task AddRangeAsync(List<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken));
+        Task AddRangeAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken));
         Task ReplaceOneAsync(TDocument item, Expression<Func<TDocument, bool>> filter, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken));
         Task UpdateOneAsync(Expression<Func<TDocument, bool>> filter, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateDefinitionAction, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken));
         Task UpdateManyAsync(Expression<Func<TDocument, bool>> filter, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateDefinitionAction, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken));
@@ -29,5 +30,6 @@ namespace MongoDbFramework
         Task EstimatedDocumentCountAsync(Action<EstimatedDocumentCountOptions> estimatedDocumentCountOptionsAction = default(Action<EstimatedDocumentCountOptions>), CancellationToken cancellationToken = default(CancellationToken));
         Task<List<TProjection>> MapReduceAsync<TProjection>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken));
         Task DeleteManyByIdAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken));
+        IMongoQueryable<TDocument> AsQueryable(AggregateOptions aggregateOptions = default);
     }
 }

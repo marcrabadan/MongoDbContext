@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MongoDbFramework.Attributes
+namespace MongoDbFramework.Abstractions
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
     public class KeyAttribute : Attribute

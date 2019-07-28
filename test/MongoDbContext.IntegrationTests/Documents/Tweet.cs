@@ -1,5 +1,4 @@
 ﻿using MongoDbFramework.Abstractions;
-using MongoDbFramework.Attributes;
 using System;
 
 namespace MongoDbFramework.IntegrationTests.Documents

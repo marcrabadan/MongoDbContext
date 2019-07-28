@@ -199,6 +199,74 @@ namespace MongoDbFramework.IntegrationTests
             Assert.True(data.Count == tweets.Count);
         }
         
+        public async Task AsQueryableFilter(IoCType ioCType)
+        {
+            this.SetTestContext(ioCType);
+
+            var tweets = Enumerable.Range(0, 100).Select(i => new Tweet
+            {                
+                Message = $"Message{i}"
+            });
+
+            await this.tweetCollection.AddRangeAsync(tweets);
+
+            var list = this.tweetCollection.AsQueryable()
+                .Where(c => c.Message == "Message50")
+                .ToList();
+
+            var tweet = list.FirstOrDefault();
+            Assert.NotNull(tweet);
+
+            Assert.Equal("Message50", tweet.Message);
+        }
+
+        public async Task AsQueryableSort(IoCType ioCType)
+        {
+            this.SetTestContext(ioCType);
+
+            var tweets = Enumerable.Range(0, 100).Select(i => new Tweet
+            {
+                Message = $"Message{i}"
+            });
+
+            await this.tweetCollection.AddRangeAsync(tweets);
+
+            var list = this.tweetCollection.AsQueryable()
+                .Where(c => c.Message.StartsWith("Message5"))
+                .OrderByDescending(c => c.Message)
+                .ToList();
+
+            var tweet = list.FirstOrDefault();
+            Assert.NotNull(tweet);
+
+            Assert.Equal("Message59", tweet.Message);
+        }
+
+        public async Task AsQueryablePaging(IoCType ioCType)
+        {
+            this.SetTestContext(ioCType);
+
+            var tweets = Enumerable.Range(0, 100).Select(i => new Tweet
+            {
+                Message = $"Message{i}"
+            });
+
+            await this.tweetCollection.AddRangeAsync(tweets);
+
+            var page = 2;
+            var pageSize = 5;
+            var list = this.tweetCollection.AsQueryable()
+                .Where(c => c.Message.StartsWith("Message5"))
+                .Skip((page - 1) * pageSize)
+                .Take(5)
+                .ToList();
+
+            var tweet = list.FirstOrDefault();
+            Assert.NotNull(tweet);
+
+            Assert.Equal("Message54", tweet.Message);
+        }
+
         public async Task IndexAsync(IoCType ioCType)
         {
             this.SetTestContext(ioCType);

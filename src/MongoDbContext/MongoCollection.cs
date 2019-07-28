@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using MongoDB.Driver.Linq;
 using MongoDbFramework.Abstractions;
 using MongoDbFramework.Extensions;
 using Polly;
@@ -143,6 +144,11 @@ namespace MongoDbFramework
             return findSync.FirstOrDefaultAsync(cancellationToken);
         }
 
+        public IMongoQueryable<TDocument> AsQueryable(AggregateOptions aggregateOptions = default)
+        {            
+            return Collection.AsQueryable(aggregateOptions);
+        }
+
         public Task<List<TDocument>> GetAllAsync(int page, CancellationToken cancellationToken = default(CancellationToken))
         {
             var currentPage = page < 0 ? 0 : page - 1;
@@ -176,7 +182,7 @@ namespace MongoDbFramework
             return item;
         }
 
-        public Task AddRangeAsync(List<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken))
+        public Task AddRangeAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (IsInTransaction())
                 return Collection.InsertManyAsync(this.clientSessionHandle, documents, cancellationToken: cancellationToken);

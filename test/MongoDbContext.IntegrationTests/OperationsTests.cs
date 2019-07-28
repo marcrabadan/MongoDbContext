@@ -62,6 +62,33 @@ namespace MongoDbFramework.IntegrationTests
         [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
         [InlineData(IoCType.Autofac)]
         [InlineData(IoCType.CastleWindsor)]
+        public async Task ShouldAsQueryableFilterToDatabase(IoCType ioCType)
+        {
+            await this.AsQueryableFilter(ioCType);
+        }
+
+        [Theory]
+        [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
+        [InlineData(IoCType.Autofac)]
+        [InlineData(IoCType.CastleWindsor)]
+        public async Task ShouldAsQueryableSortToDatabase(IoCType ioCType)
+        {
+            await this.AsQueryableSort(ioCType);
+        }
+
+        [Theory]
+        [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
+        [InlineData(IoCType.Autofac)]
+        [InlineData(IoCType.CastleWindsor)]
+        public async Task ShouldAsQueryablePagingToDatabase(IoCType ioCType)
+        {
+            await this.AsQueryablePaging(ioCType);
+        }
+
+        [Theory]
+        [InlineData(IoCType.MicrosoftExtensionsDependencyInjection)]
+        [InlineData(IoCType.Autofac)]
+        [InlineData(IoCType.CastleWindsor)]
         public async Task ShouldDeleteItemFromDatabase(IoCType ioCType)
         {
             await this.DeleteAsync(ioCType).ConfigureAwait(false);

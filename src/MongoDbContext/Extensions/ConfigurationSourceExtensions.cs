@@ -16,7 +16,6 @@ namespace MongoDbFramework
 
         public static IMongoDatabase ToMongoDatabase<TDocument>(this ConfigurationSource<TDocument> configurationSource, MongoClient client) where TDocument : IDocument
         {
-            IMongoDatabase database;
             var databaseSettings = configurationSource.Model.DatabaseBehavior.ToMongoDatabaseSettings();
             var databaseName = configurationSource.GetDatabaseName();
             return client.GetDatabase(databaseName, databaseSettings);
