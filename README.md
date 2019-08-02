@@ -43,34 +43,58 @@ MongoDbContext enables .NET developers to work with a MongoDb database using .NE
         public override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Document<Tweet>()
+                .WithDatabase("socialDb")
+                .WithCollection("tweets")                
                 .Map(c =>
                 {
                     c.AutoMap();
                     c.SetDiscriminatorIsRequired(true);
-                    c.SetDiscriminator(typeof(CustomerDocument).FullName);
+                    c.SetDiscriminator(typeof(Tweet).FullName);
                 })
-                .WithDatabase("socialDb")
-                .WithCollection("tweets")
                 .DefineIndex(c => c.Ascending(x => x.Name), c =>
                 {
                     c.Name = "NameIndex";
                     c.Unique = true;
+                })
+                .WithDatabaseBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Default);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                })
+                .WithCollectionBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Default);
+                    c.WithWriteConcern(WriteConcern.WMajority);
                 });
 
             modelBuilder.Document<Movie>()
+                .WithDatabase("socialDb")
+                .WithCollection("movies")
                 .Map(c =>
                 {
                     c.AutoMap();
                     c.SetDiscriminatorIsRequired(true);
-                    c.SetDiscriminator(typeof(CustomerDocument).FullName);
+                    c.SetDiscriminator(typeof(Movie).FullName);
                 })
-                .WithDatabase("socialDb")
-                .WithCollection("movies")
                 .DefineIndex(c => c.Ascending(x => x.Name), c =>
                 {
                     c.Name = "NameIndex";
                     c.Unique = true;
-                });
+                })
+                .WithDatabaseBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Default);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                })
+                .WithCollectionBehavior(c =>
+                {
+                    c.WithReadPreference(ReadPreference.Primary);
+                    c.WithReadConcern(ReadConcern.Default);
+                    c.WithWriteConcern(WriteConcern.WMajority);
+                });;
                             
             modelBuilder.Document<ImageBlob>()
                 .WithDatabase("fileStorage")
@@ -168,6 +192,23 @@ services.AddMongoDbContext<SocialContext>(options =>
 }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
     
 ```
+
+```csharp
+
+  var services = new ServiceCollection();
+    services.AddMongoDbContext<SocialContext>(options =>
+    {
+        options.Configure(x =>
+        {
+            x.Server = new MongoServerAddress("localhost");
+            x.ConnectionMode = ConnectionMode.Direct;
+            x.ReadConcern = ReadConcern.Default;
+            x.WriteConcern = WriteConcern.Acknowledged;
+        });
+    }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
+    
+```
+
 **ReplicaSet Configuration:**
 You can see how it works with replicaset.  [https://github.com/marcrabadan/MongoReplicaSet]
 
