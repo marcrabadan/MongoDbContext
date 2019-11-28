@@ -252,7 +252,7 @@ namespace MongoDbFramework
                 return Collection.DeleteManyAsync(Builders<TDocument>.Filter.In(property.Name, documents.Select(c => c.FindKey().GetValueFromProperty(c))), cancellationToken);
         }
 
-        public Task CountAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (IsInTransaction())
                 return Collection.CountDocumentsAsync(this.clientSessionHandle, FilterDefinition<TDocument>.Empty, cancellationToken: cancellationToken);
@@ -260,7 +260,7 @@ namespace MongoDbFramework
                 return Collection.CountDocumentsAsync(FilterDefinition<TDocument>.Empty, cancellationToken: cancellationToken);
         }
 
-        public Task CountAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<long> CountAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (IsInTransaction())
                 return Collection.CountDocumentsAsync(this.clientSessionHandle, filter, cancellationToken: cancellationToken);
@@ -268,7 +268,7 @@ namespace MongoDbFramework
                 return Collection.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
         }
 
-        public Task EstimatedDocumentCountAsync(Action<EstimatedDocumentCountOptions> estimatedDocumentCountOptionsAction = default(Action<EstimatedDocumentCountOptions>), CancellationToken cancellationToken = default(CancellationToken))
+        public Task<long> EstimatedDocumentCountAsync(Action<EstimatedDocumentCountOptions> estimatedDocumentCountOptionsAction = default(Action<EstimatedDocumentCountOptions>), CancellationToken cancellationToken = default(CancellationToken))
         {
             var estimatedDocumentCountOptions = estimatedDocumentCountOptionsAction == default(Action<EstimatedDocumentCountOptions>) ? default(EstimatedDocumentCountOptions) : new EstimatedDocumentCountOptions();
             estimatedDocumentCountOptionsAction?.Invoke(estimatedDocumentCountOptions);

@@ -25,9 +25,9 @@ namespace MongoDbFramework
         Task UpdateManyAsync(Expression<Func<TDocument, bool>> filter, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateDefinitionAction, Action<UpdateOptions> updateOptionsAction = default(Action<UpdateOptions>), CancellationToken cancellationToken = default(CancellationToken));
         Task DeleteOneAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken));
         Task DeleteManyAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken));
-        Task CountAsync(CancellationToken cancellationToken = default(CancellationToken));
-        Task CountAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken));
-        Task EstimatedDocumentCountAsync(Action<EstimatedDocumentCountOptions> estimatedDocumentCountOptionsAction = default(Action<EstimatedDocumentCountOptions>), CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> CountAsync(Expression<Func<TDocument, bool>> filter, CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> EstimatedDocumentCountAsync(Action<EstimatedDocumentCountOptions> estimatedDocumentCountOptionsAction = default(Action<EstimatedDocumentCountOptions>), CancellationToken cancellationToken = default(CancellationToken));
         Task<List<TProjection>> MapReduceAsync<TProjection>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken));
         Task DeleteManyByIdAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default(CancellationToken));
         IMongoQueryable<TDocument> AsQueryable(AggregateOptions aggregateOptions = default);
